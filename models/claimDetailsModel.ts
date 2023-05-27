@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
 
-const DetalleReclamos = db.define('detalle_reclamos', {
+const ClaimDetails = db.define('detalle_reclamos', {
   id_detalle: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -39,4 +39,4 @@ const DetalleReclamos = db.define('detalle_reclamos', {
   }
 }, { timestamps: false });
 
-export default DetalleReclamos;
+export default ClaimDetails;

@@ -1,9 +1,9 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
-import User from "./userModel";
+import Claim from "./claimModel";
 
-const TipoUsuarios = db.define('tipo_usuarios', {
-  id_tipo_usuario: {
+const serviceTypes = db.define("tipo_bienes", {
+  id_tipo_bien: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -15,6 +15,6 @@ const TipoUsuarios = db.define('tipo_usuarios', {
   }
 }, { timestamps: false });
 
-TipoUsuarios.hasMany(User, { as: 'usuarios', foreignKey: 'id_tipo_usuario' });
+serviceTypes.hasOne(Claim, { as: 'reclamos', foreignKey: 'id_tipo_bien' });
 
-export default TipoUsuarios;
+export default serviceTypes;

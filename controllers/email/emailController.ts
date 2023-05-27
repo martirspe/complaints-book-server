@@ -1,6 +1,9 @@
+import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 
-export const sendMail = async () => {
+export const sendMail = async (req: Request, res: Response) => {
+  const data = req.body;
+
   const config = {
     host: 'smtp.gmail.com',
     port: 465,
@@ -12,21 +15,18 @@ export const sendMail = async () => {
   };
 
   const message = {
-    from: '"Node Foo 👻" <admin@alka.cloud>',
-    to: "mrojas@alka.cloud",
-    subject: "Hello ✔",
-    html: "<b>Hello world?</b>"
+    from: `${data.from}`,
+    to: `${data.to}`,
+    subject: `${data.subject}`,
+    html: `${data.html}`,
   };
 
   try {
     const transport = nodemailer.createTransport(config);
-    await transport.verify(); // Verify connection configuration
-
     const info = await transport.sendMail(message);
     console.log("Message sent: %s", info.messageId);
   } catch (error) {
     console.log(error);
   }
-}
 
-sendMail();
+}

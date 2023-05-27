@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
-import DetalleReclamos from "./detalleReclamoModel";
+import DetalleReclamos from "./claimDetailsModel";
 
 const Claims = db.define('reclamos', {
   id_reclamo: {

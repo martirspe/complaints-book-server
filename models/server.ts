@@ -13,10 +13,10 @@ import emailRoute from '../routes/email/emailRoute';
 
 // Data models
 import './claimModel';
-import './detalleReclamoModel';
-import './tipoBienModel';
-import './tipoReclamoModel';
-import './tipoUsuarioModel';
+import './claimDetailsModel';
+import './serviceTypeModel';
+import './claimTypeModel';
+import './userTypeModel';
 import './userModel';
 
 class Server {
@@ -54,12 +54,6 @@ class Server {
   middlewares() {
     // CORS
     this.app.use(cors());
-
-    this.app.use(function(req, res, next) {
-      res.header("Access-Control-Allow-Origin", "http://localhost:4200"); // update to match the domain you will make the request from
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
-    });
     // Body reading
     this.app.use(express.json());
     // Public source

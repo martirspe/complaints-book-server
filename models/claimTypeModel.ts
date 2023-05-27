@@ -2,8 +2,8 @@ import { DataTypes } from "sequelize";
 import db from "../db/connection";
 import Claim from "./claimModel";
 
-const TipoBienes = db.define("tipo_bienes", {
-  id_tipo_bien: {
+const ClaimTypes = db.define('tipo_reclamos', {
+  id_tipo_reclamo: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -15,6 +15,6 @@ const TipoBienes = db.define("tipo_bienes", {
   }
 }, { timestamps: false });
 
-TipoBienes.hasOne(Claim, { as: 'reclamos', foreignKey: 'id_tipo_bien' });
+ClaimTypes.hasOne(Claim, { as: 'reclamos', foreignKey: 'id_tipo_reclamo' });
 
-export default TipoBienes;
+export default ClaimTypes;

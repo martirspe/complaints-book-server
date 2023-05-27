@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import DetalleReclamos from '../models/detalleReclamoModel';
+import DetalleReclamos from '../models/claimDetailsModel';
 
 export const postClaimDetails = async (req: Request, res: Response) => {
   const { body } = req;

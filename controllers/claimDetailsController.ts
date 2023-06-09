@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import DetalleReclamos from '../models/claimDetailsModel';
+import ClaimDetails from '../models/claimDetailsModel';
 
 export const postClaimDetails = async (req: Request, res: Response) => {
   const { body } = req;
 
   try {
-    const claimDetails = DetalleReclamos.build(body);
-    await claimDetails.save();
-    res.json(claimDetails);
+    const claimdetails = ClaimDetails.build(body);
+    await claimdetails.save();
+    res.json(claimdetails);
   } catch (error) {
     console.log(error);
     res.status(500).json({

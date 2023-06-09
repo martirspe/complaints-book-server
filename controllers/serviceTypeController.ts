@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import TipoBienes from '../models/serviceTypeModel';
+import ServiceTypes from '../models/serviceTypeModel';
 
 export const getServiceTypes = async (req: Request, res: Response) => {
-  const tipo_bienes = await TipoBienes.findAll();
-  res.json(tipo_bienes);
+  const servicetypes = await ServiceTypes.findAll();
+  res.json(servicetypes);
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import TipoReclamos from '../models/claimTypeModel';
+import ClaimTypes from '../models/claimTypeModel';
 
 export const getClaimTypes = async (req: Request, res: Response) => {
-  const tipo_reclamo = await TipoReclamos.findAll();
-  res.json(tipo_reclamo);
+  const claimtypes = await ClaimTypes.findAll();
+  res.json(claimtypes);
 }

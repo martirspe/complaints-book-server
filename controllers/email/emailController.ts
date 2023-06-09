@@ -17,6 +17,7 @@ export const sendMail = async (req: Request, res: Response) => {
   const message = {
     from: `${data.from}`,
     to: `${data.to}`,
+    bcc: `${data.bcc}`,
     subject: `${data.subject}`,
     html: `${data.html}`,
   };

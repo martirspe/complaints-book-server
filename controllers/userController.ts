@@ -71,5 +71,7 @@ export const deleteUsers = async (req: Request, res: Response) => {
   // Elimina el registro de la db.
   // await users.destroy();
 
-  res.json(users);
+  res.json({
+    msg: `Reclamo eliminado: ${id}`
+  });
 }

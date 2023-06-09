@@ -15,7 +15,6 @@ const Users = db.define('usuarios', {
   },
   num_documento: {
     type: DataTypes.INTEGER,
-    unique: true,
     allowNull: false
   },
   nombres: {
@@ -32,7 +31,6 @@ const Users = db.define('usuarios', {
   },
   celular: {
     type: DataTypes.INTEGER,
-    unique: true,
     allowNull: false
   },
   direccion: {

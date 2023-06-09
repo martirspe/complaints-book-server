@@ -71,5 +71,7 @@ export const deleteClaim = async (req: Request, res: Response) => {
   // Elimina el registro de la db.
   // await claim.destroy();
 
-  res.json(claim);
+  res.json({
+    msg: `Reclamo eliminado: ${id}`
+  });
 }

@@ -19,7 +19,7 @@ export const sendMail = async (req: Request, res: Response) => {
     to: `${data.to}`,
     bcc: `${data.bcc}`,
     subject: `${data.subject}`,
-    html: `${data.html}`,
+    html: `${data.html}`
   };
 
   try {

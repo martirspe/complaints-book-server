@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import db from '../db/connection';
 import cors from 'cors';
+import { json, urlencoded } from 'body-parser'; // Sirve para enviar los correos desde un host remoto.
 import fileUpload from 'express-fileupload';
 
 // Routes
@@ -31,8 +32,8 @@ class Server {
   async dbConnection() {
     try {
       await db.authenticate();
-      await db.sync();
-      await db.sync({ alter: true });
+      // await db.sync();
+      // await db.sync({ force: true });
       console.log('Database online.');
     } catch (error) {
       throw new Error('Failed to connect to the database.');
@@ -42,10 +43,14 @@ class Server {
   middlewares() {
     // CORS
     this.app.use(cors());
+
     // Body reading
-    this.app.use(express.json());
+    this.app.use(json());
+    this.app.use(urlencoded({ extended: false }));
+
     // Public source
     this.app.use(express.static('public'));
+    
     // Upload file
     this.app.use(fileUpload({
       useTempFiles: true,

@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import nodemailer from 'nodemailer';
+import { createTransport } from 'nodemailer';
 
 export const sendMail = async (req: Request, res: Response) => {
   const data = req.body;
 
   const config = {
-    host: 'smtp.gmail.com',
+    host: 'mail.alkacorp.com',
     port: 465,
     secure: true,
     auth: {
-      user: 'rosonoem@gmail.com',
-      pass: 'joqdciqrfinxnnop'
+      user: 'admin@alkacorp.com',
+      pass: 'Alka@4510$'
     }
   };
 
@@ -23,7 +23,7 @@ export const sendMail = async (req: Request, res: Response) => {
   };
 
   try {
-    const transport = nodemailer.createTransport(config);
+    const transport = createTransport(config);
     const info = await transport.sendMail(message);
     console.log("Message sent: %s", info.messageId);
   } catch (error) {

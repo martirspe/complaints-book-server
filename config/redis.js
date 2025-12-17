@@ -1,7 +1,10 @@
 const { createClient } = require('redis');
 
+// Allow configuring Redis via environment variable in Docker
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+
 const client = createClient({
-  url: 'redis://localhost:6379'
+  url: redisUrl
 });
 
 client.on('error', (err) => {

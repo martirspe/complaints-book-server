@@ -15,7 +15,7 @@ exports.createUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: 'User with this email already exists' });
+      return res.status(409).json({ message: 'User with this email already exists' });
     }
 
     // Hash the password before saving the user
@@ -78,8 +78,8 @@ exports.updateUser = async (req, res) => {
     // Verify if email is already in use by another user (if provided)
     if (email) {
       const existingEmail = await User.findOne({ where: { email } });
-      if (existingEmail) {
-        return res.status(400).json({ message: 'Email is already in use' });
+      if (existingEmail && existingEmail.id !== parseInt(id)) {
+        return res.status(409).json({ message: 'Email is already in use' });
       }
     }
 

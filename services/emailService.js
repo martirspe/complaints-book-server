@@ -2,9 +2,16 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-// Get data from environment variables
-const EMAIL_COMPANY_NAME = process.env.EMAIL_COMPANY_NAME || 'MartiPE';
-const EMAIL_LOGO_PATH = process.env.EMAIL_LOGO_PATH || 'assets/logos/logo.png';
+// Branding configuration (single source of truth)
+const branding = require('../config/branding');
+
+// Get data from environment variables and branding config
+const BRANDING_COMPANY_NAME = branding.companyName || 'MartiPE';
+const BRANDING_LOGO_LIGHT_PATH = branding.logoLightPath || 'assets/logos/logo-light.png';
+const BRANDING_LOGO_DARK_PATH = branding.logoDarkPath || 'assets/logos/logo-dark.png';
+
+// Use light logo path for emails by default
+const EMAIL_LOGO_PATH = BRANDING_LOGO_DARK_PATH;
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
 const EMAIL_SECURE = process.env.EMAIL_SECURE;
@@ -31,7 +38,7 @@ const sendEmail = async (to, subject, text, templateName, replacements, attachme
         const html = await fs.promises.readFile(templatePath, 'utf8');
 
         // Add EMAIL_COMPANY and current year to substitutions if they are not present
-        replacements.companyName = EMAIL_COMPANY_NAME;
+        replacements.companyName = BRANDING_COMPANY_NAME;
         replacements.currentYear = new Date().getFullYear();
 
         // Replace the placeholders in the template with real data
@@ -49,7 +56,7 @@ const sendEmail = async (to, subject, text, templateName, replacements, attachme
 
         // Definition of email
         const mailOptions = {
-            from: `${EMAIL_COMPANY_NAME} <${EMAIL_USER}>`,
+            from: `${BRANDING_COMPANY_NAME} <${EMAIL_USER}>`,
             to: to,
             bcc: SUPPORT_EMAIL, // Sending a copy to support
             subject: subject,

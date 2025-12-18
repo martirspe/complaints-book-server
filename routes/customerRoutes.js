@@ -11,9 +11,10 @@ const {
 } = require('../controllers/customerController');
 
 const router = express.Router();
+const { validateCustomerCreate, validateCustomerUpdate } = require('../middlewares/validationMiddleware');
 
 // Create a new customer
-router.post('/customers', createCustomer);
+router.post('/customers', validateCustomerCreate, createCustomer);
 
 // Get all customers
 router.get('/customers', getCustomers);
@@ -25,7 +26,7 @@ router.get('/customers/document/:document_number', getCustomerByDocument);
 router.get('/customers/:id', getCustomerById);
 
 // Update a customer
-router.put('/customers/:id', updateCustomer);
+router.put('/customers/:id', validateCustomerUpdate, updateCustomer);
 
 // Delete a customer
 router.delete('/customers/:id', deleteCustomer);

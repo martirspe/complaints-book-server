@@ -15,19 +15,19 @@ exports.createTutor = async (req, res) => {
     // Verify if document_number already exists in another tutor
     const existingDocumentNumber = await Tutor.findOne({ where: { document_number } });
     if (existingDocumentNumber) {
-      return res.status(400).json({ message: 'Document number is already in use' });
+      return res.status(409).json({ message: 'Document number is already in use' });
     }
 
     // Verify if email already exists in another tutor
     const existingEmail = await Tutor.findOne({ where: { email } });
     if (existingEmail) {
-      return res.status(400).json({ message: 'Email is already in use' });
+      return res.status(409).json({ message: 'Email is already in use' });
     }
 
     // Verify if phone already exists in another tutor
     const existingPhone = await Tutor.findOne({ where: { phone } });
     if (existingPhone) {
-      return res.status(400).json({ message: 'Phone number is already in use' });
+      return res.status(409).json({ message: 'Phone number is already in use' });
     }
 
     // Create the tutor if no duplicates exist
@@ -109,24 +109,24 @@ exports.updateTutor = async (req, res) => {
     // Verify if document_number is already in use by another tutor (if provided)
     if (document_number) {
       const existingDocumentNumber = await Tutor.findOne({ where: { document_number } });
-      if (existingDocumentNumber) {
-        return res.status(400).json({ message: 'Document number is already in use' });
+      if (existingDocumentNumber && existingDocumentNumber.id !== parseInt(id)) {
+        return res.status(409).json({ message: 'Document number is already in use' });
       }
     }
 
     // Verify if email is already in use by another tutor (if provided)
     if (email) {
       const existingEmail = await Tutor.findOne({ where: { email } });
-      if (existingEmail) {
-        return res.status(400).json({ message: 'Email is already in use' });
+      if (existingEmail && existingEmail.id !== parseInt(id)) {
+        return res.status(409).json({ message: 'Email is already in use' });
       }
     }
 
     // Verify if phone is already in use by another tutor (if provided)
     if (phone) {
       const existingPhone = await Tutor.findOne({ where: { phone } });
-      if (existingPhone) {
-        return res.status(400).json({ message: 'Phone number is already in use' });
+      if (existingPhone && existingPhone.id !== parseInt(id)) {
+        return res.status(409).json({ message: 'Phone number is already in use' });
       }
     }
 
@@ -137,7 +137,7 @@ exports.updateTutor = async (req, res) => {
       return res.status(200).json(updatedTutor);
     }
 
-    throw new Error("Tutor not found");
+    return res.status(404).json({ message: "Tutor not found" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

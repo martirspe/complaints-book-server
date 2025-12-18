@@ -11,9 +11,10 @@ const {
 } = require('../controllers/tutorController');
 
 const router = express.Router();
+const { validateTutorCreate, validateTutorUpdate } = require('../middlewares/validationMiddleware');
 
 // Create a new tutor
-router.post('/tutors', createTutor);
+router.post('/tutors', validateTutorCreate, createTutor);
 
 // Get all tutors
 router.get('/tutors', getTutors);
@@ -25,7 +26,7 @@ router.get('/tutors/document/:document_number', getTutorByDocument);
 router.get('/tutors/:id', getTutorById);
 
 // Update a tutor
-router.put('/tutors/:id', updateTutor);
+router.put('/tutors/:id', validateTutorUpdate, updateTutor);
 
 // Delete a tutor
 router.delete('/tutors/:id', deleteTutor);

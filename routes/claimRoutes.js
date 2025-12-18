@@ -2,6 +2,9 @@ const express = require('express');
 
 // Upload middleware
 const { uploadClaim, uploadResolveClaim } = require('../middlewares/uploadMiddleware');
+// Optional reCAPTCHA middleware
+const recaptchaMiddleware = require('../middlewares/recaptchaMiddleware');
+const { validateClaimCreate, validateClaimUpdate, validateClaimAssign, validateClaimResolve } = require('../middlewares/validationMiddleware');
 
 // Claims controller
 const {
@@ -16,8 +19,8 @@ const {
 
 const router = express.Router();
 
-// Create a new claim
-router.post('/claims', uploadClaim, createClaim);
+// Create a new claim (multipart parsing first to populate req.body)
+router.post('/claims', uploadClaim, validateClaimCreate, recaptchaMiddleware, createClaim);
 
 // Get all claims
 router.get('/claims', getClaims);
@@ -26,15 +29,15 @@ router.get('/claims', getClaims);
 router.get('/claims/:id', getClaimById);
 
 // Update a claim
-router.put('/claims/:id', uploadClaim, updateClaim);
+router.put('/claims/:id', validateClaimUpdate, uploadClaim, updateClaim);
 
 // Delete a claim
 router.delete('/claims/:id', deleteClaim);
 
 // Assign a claim
-router.patch('/claims/:id/assign', assignClaim);
+router.patch('/claims/:id/assign', validateClaimAssign, assignClaim);
 
 // Resolve a claim
-router.patch('/claims/:id/resolve', uploadResolveClaim, resolveClaim);
+router.patch('/claims/:id/resolve', validateClaimResolve, uploadResolveClaim, resolveClaim);
 
 module.exports = router;

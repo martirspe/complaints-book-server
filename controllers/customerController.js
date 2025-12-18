@@ -15,19 +15,19 @@ exports.createCustomer = async (req, res) => {
     // Check if the document_number already exists for another customer
     const existingDocument = await Customer.findOne({ where: { document_number } });
     if (existingDocument) {
-      return res.status(404).json({ message: 'Document number is already in use' });
+      return res.status(409).json({ message: 'Document number is already in use' });
     }
 
     // Check if the email already exists for another customer
     const existingEmail = await Customer.findOne({ where: { email } });
     if (existingEmail) {
-      return res.status(404).json({ message: 'Email is already in use' });
+      return res.status(409).json({ message: 'Email is already in use' });
     }
 
     // Check if the phone number already exists for another customer
     const existingPhone = await Customer.findOne({ where: { phone } });
     if (existingPhone) {
-      return res.status(404).json({ message: 'Phone number is already in use' });
+      return res.status(409).json({ message: 'Phone number is already in use' });
     }
 
     // Create the customer if no duplicates exist

@@ -6,8 +6,8 @@ module.exports = {
   companyBrand: process.env.BRANDING_COMPANY_NAME_COMERCIAL || 'MARRSO Store',
   companyName: process.env.BRANDING_COMPANY_NAME || 'MARRSO S.A.C',
   companyRuc: process.env.BRANDING_COMPANY_RUC || '20613518895',
-  primaryColor: process.env.BRANDING_PRIMARY_COLOR || '#0d6efd',
-  accentColor: process.env.BRANDING_ACCENT_COLOR || '#6610f2',
+  primaryColor: process.env.BRANDING_PRIMARY_COLOR || '#01b681',
+  accentColor: process.env.BRANDING_ACCENT_COLOR || '#0d6efd',
   // Paths are relative to the server root where static assets are served
   // Defaults to SVG placeholders; replace with your own files (PNG/SVG)
   logoLightPath: process.env.BRANDING_LOGO_LIGHT_PATH || 'assets/logos/logo-light.png',

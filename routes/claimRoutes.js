@@ -37,7 +37,7 @@ router.delete('/claims/:id', deleteClaim);
 // Assign a claim
 router.patch('/claims/:id/assign', validateClaimAssign, assignClaim);
 
-// Resolve a claim
-router.patch('/claims/:id/resolve', validateClaimResolve, uploadResolveClaim, resolveClaim);
+// Resolve a claim (multipart parsing first to populate req.body)
+router.patch('/claims/:id/resolve', uploadResolveClaim, validateClaimResolve, resolveClaim);
 
 module.exports = router;

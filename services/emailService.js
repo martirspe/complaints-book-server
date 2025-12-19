@@ -11,7 +11,7 @@ const BRANDING_LOGO_LIGHT_PATH = branding.logoLightPath || 'assets/logos/logo-li
 const BRANDING_LOGO_DARK_PATH = branding.logoDarkPath || 'assets/logos/logo-dark.png';
 
 // Use light logo path for emails by default
-const EMAIL_LOGO_PATH = BRANDING_LOGO_DARK_PATH;
+const EMAIL_LOGO_PATH = BRANDING_LOGO_LIGHT_PATH;
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
 const EMAIL_SECURE = process.env.EMAIL_SECURE;

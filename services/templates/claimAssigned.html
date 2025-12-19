@@ -1,128 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Reclamo Asignado</title>
     <style>
-        /* Estilos en línea para compatibilidad con la mayoría de los clientes de correo */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e0e0e0;
-        }
-
-        .header {
-            text-align: center;
-            margin: 25px 0;
-        }
-
-        .header img {
-            max-width: 150px;
-        }
-
-        h2 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        p {
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .reclamo-details {
-            margin-top: 30px;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .reclamo-details p {
-            margin-bottom: 10px;
-        }
-
-        .reclamo-details p strong {
-            color: #555;
-        }
-
-        .info-adicional {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            border: 1px solid #dcdcdc;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        .footer p {
-            margin: 5px 0;
-        }
+      @media only screen and (max-width:600px) {
+        .container { width: 100% !important; }
+        .p-24 { padding: 16px !important; }
+        .h1 { font-size: 22px !important; line-height: 28px !important; }
+        .btn { width: 100% !important; }
+      }
+      @media (prefers-color-scheme: dark) {
+        .card { background: #0f172a !important; }
+        .text { color: #e5e7eb !important; }
+        .muted { color: #94a3b8 !important; }
+      }
     </style>
-</head>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f7fa;">
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;color:#f5f7fa;">Se te asignó el reclamo {{claimCode}}</div>
 
-<body style="background-color: #f9f9f9; margin: 0; padding: 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-            <td align="center" style="padding: 50px 0 90px;">
-                <table class="container" role="presentation" cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td>
-                            <div class="header">
-                                <img src="cid:companylogo" alt="Logo de la Empresa">
-                            </div>
-                            <h2>Hola {{assignedName}},</h2>
-                            <p>Se te ha asignado el reclamo con el código: <strong>{{claimCode}}</strong>. A continuación, encontrará los detalles del reclamo.</p>
-                            <div class="reclamo-details">
-                                <p><strong>Cliente:</strong> {{customerFirstName}} {{customerLastName}}</p>
-                                <p><strong>Tipo de Consumo:</strong> {{consumptionType}}</p>
-                                <p><strong>Tipo de Reclamo:</strong> {{claimType}}</p>
-                                <p><strong>Número de Pedido:</strong> {{orderNumber}}</p>
-                                <p><strong>Monto Reclamado:</strong> S/{{claimedAmount}}</p>
-                                <p><strong>Descripción:</strong></p>
-                                <p>{{claimDescription}}</p>
-                                <p><strong>Detalle:</strong></p>
-                                <p>{{claimDetail}}</p>
-                                <p><strong>Pedido:</strong></p>
-                                <p>{{claimRequest}}</p>
-                                <p><strong>Fecha de Registro:</strong> {{creationDate}}</p>
-                                <p><strong>Fecha de Asignación:</strong> {{assignmentDate}}</p>
-                            </div>
-                            <div class="info-adicional">
-                                <p>*La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.</p>
-                                <p>*El proveedor debe dar respuesta al reclamo o queja en un plazo no mayor a quince (15) días hábiles, el cual es improrrogable.</p>
-                            </div>
-                            <div class="footer">
-                                <p>&#169; {{currentYear}} {{companyName}} Todos los derechos reservados.</p>
-                                <p>Este mensaje es exclusivo para el destinatario. Si ha recibido este correo por error, por favor, elimínelo de inmediato y avísenos para evitar futuros errores.</p>
-                            </div>
-                        </td>
-                    </tr>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f7fa;">
+      <tr>
+        <td align="center" style="padding:24px 12px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="container" style="width:100%;max-width:600px;border-collapse:collapse;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(15,23,42,.15);">
+            <tr>
+              <td style="padding:24px;background:#1e293b;border-radius:16px 16px 0 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="left" style="vertical-align:middle;">
+                      <img src="cid:companylogo" alt="{{companyName}}" width="120" style="display:block;border:0;outline:none;text-decoration:none;">
+                    </td>
+                    <td align="right" style="vertical-align:middle;">
+                      <span style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:12px;letter-spacing:.08em;color:#3b0764;font-weight:700;background:#f3e8ff;border:1px solid #e9d5ff;border-radius:999px;padding:6px 12px;">Asignado</span>
+                    </td>
+                  </tr>
                 </table>
-            </td>
-        </tr>
+              </td>
+            </tr>
+            <tr>
+              <td class="p-24" style="padding:28px;">
+                <h1 class="h1" style="margin:0;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-weight:700;font-size:24px;line-height:32px;color:#0f172a;">Reclamo Asignado</h1>
+                <p class="text" style="margin:8px 0 0 0;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:14px;line-height:22px;color:#374151;">Hola {{assignedName}}, se te asignó un reclamo para gestión.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 28px 28px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="card" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                  <tr>
+                    <td style="padding:16px 20px;background:#f8fafc;border-bottom:1px solid #e5e7eb;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:12px;color:#6b7280;">Código</td>
+                          <td align="right" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:12px;color:#6b7280;">Asignación</td>
+                        </tr>
+                        <tr>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-weight:600;font-size:16px;color:#111827;">{{claimCode}}</td>
+                          <td align="right" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-weight:600;font-size:16px;color:#111827;">{{assignmentDate}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0 10px;">
+                        <tr style="background:#ffffff;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Cliente</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{customerFirstName}} {{customerLastName}}</td>
+                        </tr>
+                        <tr style="background:#f8fafc;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Tipo de Consumo</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{consumptionType}}</td>
+                        </tr>
+                        <tr style="background:#ffffff;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Tipo de Reclamo</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{claimType}}</td>
+                        </tr>
+                        <tr style="background:#f8fafc;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Número de Orden</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{orderNumber}}</td>
+                        </tr>
+                        <tr style="background:#ffffff;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Monto Reclamado</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{claimedAmount}}</td>
+                        </tr>
+                        <tr style="background:#f8fafc;">
+                          <td width="35%" style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;">Fecha Registro</td>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#111827;font-weight:600;">{{creationDate}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 20px 20px 20px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                        <tr>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:13px;color:#4b5563;padding-bottom:6px;">Descripción</td>
+                        </tr>
+                        <tr>
+                          <td style="font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:15px;line-height:24px;color:#0f172a;background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:14px;display:block;overflow:hidden;">{{claimDescription}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 28px 28px 28px;">
+                <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="border-radius:999px;background:#8b5cf6;box-shadow:0 6px 18px rgba(15,23,42,.12);">
+                      <a href="{{ctaUrl}}" class="btn" style="display:inline-block;padding:14px 24px;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">Gestionar Reclamo</a>
+                    </td>
+                  </tr>
+                </table>
+                <p class="muted" style="margin:12px 0 0 0;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:12px;color:#6b7280;">Si el botón no funciona, abre: {{ctaUrl}}</p>
+                <p class="muted" style="margin:6px 0 0 0;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:12px;color:#6b7280;" aria-hidden="true">Usa el código {{claimCode}} en el sistema y responde a este correo.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px;background:#1e293b;text-align:center;border-radius:0 0 16px 16px;">
+                <p style="margin:0;font-family:-apple-system, Segoe UI, Arial, sans-serif;font-size:11px;color:#94a3b8;">© {{currentYear}} {{companyName}} · Este mensaje es confidencial. Si lo recibiste por error, elimínalo y avísanos.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
     </table>
-</body>
-
+  </body>
 </html>

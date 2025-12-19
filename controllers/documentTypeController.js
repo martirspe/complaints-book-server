@@ -6,9 +6,9 @@ exports.createDocumentType = async (req, res) => {
   try {
     const { name } = req.body;
     const newDocumentType = await DocumentType.create({ name });
-    res.status(201).json(newDocumentType);
+    res.status(201).json({ message: 'Tipo de documento registrado correctamente', data: newDocumentType });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error al registrar el tipo de documento: ' + error.message });
   }
 };
 
@@ -19,12 +19,12 @@ exports.getDocumentTypes = async (req, res) => {
 
     // Check if there are registered document types
     if (documentTypes.length === 0) {
-      return res.status(404).json({ message: 'No registered document types' });
+      return res.status(404).json({ message: 'No hay tipos de documento registrados' });
     }
 
     res.status(200).json(documentTypes);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error al obtener tipos de documento: ' + error.message });
   }
 };
 
@@ -34,11 +34,11 @@ exports.getDocumentTypeById = async (req, res) => {
     const { id } = req.params;
     const documentType = await DocumentType.findByPk(id);
     if (!documentType) {
-      return res.status(404).json({ error: 'Document type not found' });
+      return res.status(404).json({ message: 'El tipo de documento no fue encontrado' });
     }
-    res.json(documentType);
+    res.status(200).json(documentType);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error al obtener el tipo de documento: ' + error.message });
   }
 };
 
@@ -49,13 +49,13 @@ exports.updateDocumentType = async (req, res) => {
     const { name } = req.body;
     const documentType = await DocumentType.findByPk(id);
     if (!documentType) {
-      return res.status(404).json({ error: 'Document type not found' });
+      return res.status(404).json({ message: 'El tipo de documento no fue encontrado' });
     }
     documentType.name = name;
     await documentType.save();
-    res.json(documentType);
+    res.status(200).json({ message: 'Tipo de documento actualizado correctamente', data: documentType });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error al actualizar el tipo de documento: ' + error.message });
   }
 };
 
@@ -65,10 +65,10 @@ exports.deleteDocumentType = async (req, res) => {
     const { id } = req.params;
     const deleted = await DocumentType.destroy({ where: { id } });
     if (deleted) {
-      return res.status(200).json({ message: "Document type successfully deleted" });
+      return res.status(200).json({ message: "El tipo de documento fue eliminado correctamente" });
     }
     throw new Error("Document type not found");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al eliminar el tipo de documento: ' + error.message });
   }
 };

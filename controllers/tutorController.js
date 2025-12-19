@@ -9,32 +9,32 @@ exports.createTutor = async (req, res) => {
     // Verify if document_type_id exists in document_types
     const existingDocumentType = await DocumentType.findByPk(document_type_id);
     if (!existingDocumentType) {
-      return res.status(404).json({ message: "Document type not found" });
+      return res.status(404).json({ message: "El tipo de documento no existe" });
     }
 
     // Verify if document_number already exists in another tutor
     const existingDocumentNumber = await Tutor.findOne({ where: { document_number } });
     if (existingDocumentNumber) {
-      return res.status(409).json({ message: 'Document number is already in use' });
+      return res.status(409).json({ message: 'Este número de documento ya está registrado' });
     }
 
     // Verify if email already exists in another tutor
     const existingEmail = await Tutor.findOne({ where: { email } });
     if (existingEmail) {
-      return res.status(409).json({ message: 'Email is already in use' });
+      return res.status(409).json({ message: 'Este correo electrónico ya está registrado' });
     }
 
     // Verify if phone already exists in another tutor
     const existingPhone = await Tutor.findOne({ where: { phone } });
     if (existingPhone) {
-      return res.status(409).json({ message: 'Phone number is already in use' });
+      return res.status(409).json({ message: 'Este número de teléfono ya está registrado' });
     }
 
     // Create the tutor if no duplicates exist
     const tutor = await Tutor.create(req.body);
-    res.status(201).json(tutor);
+    res.status(201).json({ message: 'Tutor registrado correctamente', data: tutor });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al registrar el tutor: ' + error.message });
   }
 };
 
@@ -47,12 +47,12 @@ exports.getTutors = async (req, res) => {
 
     // Verify if there are registered tutors
     if (tutors.length === 0) {
-      return res.status(404).json({ message: 'No tutors found' });
+      return res.status(404).json({ message: 'No hay tutores registrados' });
     }
 
     res.status(200).json(tutors);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener tutores: ' + error.message });
   }
 };
 
@@ -67,12 +67,12 @@ exports.getTutorByDocument = async (req, res) => {
     });
 
     if (!tutor) {
-      return res.status(404).json({ message: "Tutor not found" });
+      return res.status(404).json({ message: "El tutor no fue encontrado" });
     }
 
     res.status(200).json(tutor);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener el tutor: ' + error.message });
   }
 };
 
@@ -85,12 +85,12 @@ exports.getTutorById = async (req, res) => {
 
     // Verify if the tutor exists
     if (!tutor) {
-      return res.status(404).json({ message: "Tutor not found" });
+      return res.status(404).json({ message: "El tutor no fue encontrado" });
     }
 
     res.status(200).json(tutor);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener el tutor: ' + error.message });
   }
 };
 
@@ -103,14 +103,14 @@ exports.updateTutor = async (req, res) => {
     // Verify if the tutor exists
     const tutor = await Tutor.findByPk(id);
     if (!tutor) {
-      return res.status(404).json({ message: 'Tutor not found' });
+      return res.status(404).json({ message: 'El tutor no fue encontrado' });
     }
 
     // Verify if document_number is already in use by another tutor (if provided)
     if (document_number) {
       const existingDocumentNumber = await Tutor.findOne({ where: { document_number } });
       if (existingDocumentNumber && existingDocumentNumber.id !== parseInt(id)) {
-        return res.status(409).json({ message: 'Document number is already in use' });
+        return res.status(409).json({ message: 'Este número de documento ya está registrado' });
       }
     }
 
@@ -118,7 +118,7 @@ exports.updateTutor = async (req, res) => {
     if (email) {
       const existingEmail = await Tutor.findOne({ where: { email } });
       if (existingEmail && existingEmail.id !== parseInt(id)) {
-        return res.status(409).json({ message: 'Email is already in use' });
+        return res.status(409).json({ message: 'Este correo electrónico ya está registrado' });
       }
     }
 
@@ -126,7 +126,7 @@ exports.updateTutor = async (req, res) => {
     if (phone) {
       const existingPhone = await Tutor.findOne({ where: { phone } });
       if (existingPhone && existingPhone.id !== parseInt(id)) {
-        return res.status(409).json({ message: 'Phone number is already in use' });
+        return res.status(409).json({ message: 'Este número de teléfono ya está registrado' });
       }
     }
 
@@ -134,12 +134,12 @@ exports.updateTutor = async (req, res) => {
     const [updated] = await Tutor.update(req.body, { where: { id } });
     if (updated) {
       const updatedTutor = await Tutor.findByPk(id);
-      return res.status(200).json(updatedTutor);
+      return res.status(200).json({ message: 'Tutor actualizado correctamente', data: updatedTutor });
     }
 
-    return res.status(404).json({ message: "Tutor not found" });
+    return res.status(404).json({ message: "El tutor no fue encontrado" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al actualizar el tutor: ' + error.message });
   }
 };
 
@@ -151,11 +151,11 @@ exports.deleteTutor = async (req, res) => {
 
     // Show a message if the tutor is deleted
     if (deleted) {
-      return res.status(200).json({ message: "Tutor deleted successfully" });
+      return res.status(200).json({ message: "El tutor fue eliminado correctamente" });
     }
 
     throw new Error("Tutor not found");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al eliminar el tutor: ' + error.message });
   }
 };

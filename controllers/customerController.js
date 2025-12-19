@@ -9,32 +9,32 @@ exports.createCustomer = async (req, res) => {
     // Check if the document_type_id exists in document_types
     const existingDocumentType = await DocumentType.findByPk(document_type_id);
     if (!existingDocumentType) {
-      return res.status(404).json({ message: "Document type not found" });
+      return res.status(404).json({ message: "El tipo de documento no existe" });
     }
 
     // Check if the document_number already exists for another customer
     const existingDocument = await Customer.findOne({ where: { document_number } });
     if (existingDocument) {
-      return res.status(409).json({ message: 'Document number is already in use' });
+      return res.status(409).json({ message: 'Este número de documento ya está registrado' });
     }
 
     // Check if the email already exists for another customer
     const existingEmail = await Customer.findOne({ where: { email } });
     if (existingEmail) {
-      return res.status(409).json({ message: 'Email is already in use' });
+      return res.status(409).json({ message: 'Este correo electrónico ya está registrado' });
     }
 
     // Check if the phone number already exists for another customer
     const existingPhone = await Customer.findOne({ where: { phone } });
     if (existingPhone) {
-      return res.status(409).json({ message: 'Phone number is already in use' });
+      return res.status(409).json({ message: 'Este número de teléfono ya está registrado' });
     }
 
     // Create the customer if no duplicates exist
     const customer = await Customer.create(req.body);
-    res.status(201).json(customer);
+    res.status(201).json({ message: 'Cliente registrado correctamente', data: customer });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al registrar el cliente: ' + error.message });
   }
 };
 
@@ -45,14 +45,14 @@ exports.getCustomers = async (req, res) => {
       include: [{ model: DocumentType }]
     });
 
-    // Check if there are any registered customers
+    // Check if there are registered customers
     if (customers.length === 0) {
-      return res.status(404).json({ message: 'No registered customers' });
+      return res.status(404).json({ message: 'No hay clientes registrados' });
     }
 
     res.status(200).json(customers);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener clientes: ' + error.message });
   }
 };
 
@@ -67,12 +67,12 @@ exports.getCustomerByDocument = async (req, res) => {
     });
 
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "El cliente no fue encontrado" });
     }
 
     res.status(200).json(customer);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener el cliente: ' + error.message });
   }
 };
 
@@ -151,7 +151,7 @@ exports.deleteCustomer = async (req, res) => {
 
     // Show a message if the customer is deleted
     if (deleted) {
-      return res.status(200).json({ message: "Customer successfully deleted" });
+      return res.status(200).json({ message: "El cliente fue eliminado correctamente" });
     }
 
     throw new Error("Customer not found");

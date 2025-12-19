@@ -15,7 +15,7 @@ exports.createUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({ message: 'User with this email already exists' });
+      return res.status(409).json({ message: 'Este correo ya está registrado' });
     }
 
     // Hash the password before saving the user
@@ -31,9 +31,9 @@ exports.createUser = async (req, res) => {
       role
     });
 
-    res.status(201).json(user);
+    res.status(201).json({ message: 'Usuario registrado correctamente', data: user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al registrar el usuario: ' + error.message });
   }
 };
 
@@ -44,12 +44,12 @@ exports.getUsers = async (req, res) => {
 
     // Verify if there are registered users
     if (users.length === 0) {
-      return res.status(404).json({ message: 'No users found' });
+      return res.status(404).json({ message: 'No hay usuarios registrados' });
     }
 
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener usuarios: ' + error.message });
   }
 };
 
@@ -60,12 +60,12 @@ exports.getUserById = async (req, res) => {
 
     // Verify if the user exists
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "El usuario no fue encontrado" });
     }
 
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al obtener el usuario: ' + error.message });
   }
 };
 
@@ -79,7 +79,7 @@ exports.updateUser = async (req, res) => {
     if (email) {
       const existingEmail = await User.findOne({ where: { email } });
       if (existingEmail && existingEmail.id !== parseInt(id)) {
-        return res.status(409).json({ message: 'Email is already in use' });
+        return res.status(409).json({ message: 'Este correo electrónico ya está registrado' });
       }
     }
 
@@ -92,12 +92,12 @@ exports.updateUser = async (req, res) => {
     const [updated] = await User.update(req.body, { where: { id } });
     if (updated) {
       const updatedUser = await User.findByPk(id);
-      return res.status(200).json(updatedUser);
+      return res.status(200).json({ message: 'Usuario actualizado correctamente', data: updatedUser });
     }
 
     throw new Error('User not found');
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al actualizar el usuario: ' + error.message });
   }
 };
 
@@ -109,12 +109,12 @@ exports.deleteUser = async (req, res) => {
 
     // Show a message if the user is deleted
     if (deleted) {
-      return res.status(200).json({ message: "User deleted successfully" });
+      return res.status(200).json({ message: "El usuario fue eliminado correctamente" });
     }
 
     throw new Error("User not found");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al eliminar el usuario: ' + error.message });
   }
 };
 
@@ -126,20 +126,20 @@ exports.loginUser = async (req, res) => {
 
     // Show a message if user data is incorrect
     if (!user) {
-      return res.status(401).json({ message: "Incorrect email or password" });
+      return res.status(401).json({ message: "Correo o contraseña incorrectos" });
     }
 
     // Compare the received password with the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Incorrect email or password" });
+      return res.status(401).json({ message: "Correo o contraseña incorrectos" });
     }
 
     // Generate and return a JWT
     const token = generateJWT(user);
 
-    res.status(200).json({ token });
+    res.status(200).json({ message: 'Sesión iniciada correctamente', token, user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al iniciar sesión: ' + error.message });
   }
 };

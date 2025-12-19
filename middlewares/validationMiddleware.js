@@ -5,7 +5,7 @@ const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) return next();
   return res.status(422).json({
-    message: 'Validation failed',
+    message: 'Validación fallida. Por favor revisa los campos',
     errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
   });
 };

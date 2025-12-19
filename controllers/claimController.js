@@ -22,7 +22,7 @@ exports.createClaim = async (req, res) => {
 
     // Check if all necessary records exist
     if (!customer || !consumptionType || !claimType || (tutor_id && !tutor)) {
-      return res.status(404).json({ message: 'One or more related records were not found' });
+      return res.status(404).json({ message: 'Uno o más registros no fueron encontrados' });
     }
 
     // Handle attachment
@@ -70,7 +70,7 @@ exports.createClaim = async (req, res) => {
     );
 
     res.status(201).json({
-      message: 'Your claim has been registered',
+      message: 'Tu reclamo fue registrado correctamente',
       fileInfo: req.fileInfo
     });
   } catch (error) {
@@ -87,7 +87,7 @@ exports.getClaims = async (req, res) => {
 
     // Check if there are registered claims
     if (claims.length === 0) {
-      return res.status(404).json({ message: 'No registered claims' });
+      return res.status(404).json({ message: 'No hay reclamos registrados' });
     }
 
     res.status(200).json(claims);
@@ -104,7 +104,7 @@ exports.getClaimById = async (req, res) => {
     });
 
     if (!claim) {
-      return res.status(404).json({ message: 'Claim not found' });
+      return res.status(404).json({ message: 'El reclamo no fue encontrado' });
     }
 
     res.status(200).json(claim);
@@ -126,7 +126,7 @@ exports.updateClaim = async (req, res) => {
 
     const [updated] = await Claim.update(claimData, { where: { id } });
     if (!updated) {
-      return res.status(404).json({ message: "Claim not found" });
+      return res.status(404).json({ message: 'El reclamo no fue encontrado' });
     }
 
     const updatedClaim = await Claim.findByPk(id, {
@@ -152,7 +152,7 @@ exports.updateClaim = async (req, res) => {
     );
 
     return res.status(200).json({
-      message: 'Your claim has been updated',
+      message: 'Tu reclamo fue actualizado correctamente',
       fileInfo: req.fileInfo
     });
 
@@ -167,11 +167,11 @@ exports.deleteClaim = async (req, res) => {
     const { id } = req.params;
     const deleted = await Claim.destroy({ where: { id } });
     if (deleted) {
-      return res.status(200).json({ message: 'Claim successfully deleted' });
+      return res.status(200).json({ message: 'El reclamo fue eliminado correctamente' });
     }
     throw new Error('Claim not found');
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al eliminar el reclamo: ' + error.message });
   }
 };
 
@@ -190,11 +190,11 @@ exports.assignClaim = async (req, res) => {
     ]);
 
     if (!claim) {
-      return res.status(404).json({ message: 'Claim not found' });
+      return res.status(404).json({ message: 'El reclamo no fue encontrado' });
     }
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'El usuario no fue encontrado' });
     }
 
     claim.assigned_user = assigned_user;
@@ -219,14 +219,14 @@ exports.assignClaim = async (req, res) => {
     );
 
     res.status(200).json({
-      message: `The claim has been assigned to: ${user.first_name} ${user.last_name}`,
+      message: `El reclamo ha sido asignado a ${user.first_name} ${user.last_name}`,
       assignedUser: {
         id: user.id,
         name: `${user.first_name} ${user.last_name}`
       }
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: 'Error al asignar el reclamo: ' + error.message });
   }
 };
 
@@ -241,7 +241,7 @@ exports.resolveClaim = async (req, res) => {
     });
 
     if (!claim) {
-      return res.status(404).json({ message: 'Claim not found' });
+      return res.status(404).json({ message: 'El reclamo no fue encontrado' });
     }
 
     claim.response = response;
@@ -277,10 +277,10 @@ exports.resolveClaim = async (req, res) => {
     );
 
     res.status(200).json({
-      message: 'Your claim has been resolved',
+      message: 'Tu reclamo ha sido resuelto correctamente',
       fileInfo: req.fileInfo
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: 'Error al resolver el reclamo: ' + error.message });
   }
 };

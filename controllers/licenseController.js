@@ -11,12 +11,12 @@ exports.checkLicense = async (req, res) => {
         const user = await User.findByPk(userId);
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'El usuario no fue encontrado' });
         }
 
         // Validate if the user has a registered license
         if (!user.license_type || !user.license_expiration_date) {
-            return res.status(404).json({ message: 'No license was found for the user.' });
+            return res.status(404).json({ message: 'No hay licencia registrada para este usuario' });
         }
 
         const currentDate = new Date();
@@ -25,13 +25,13 @@ exports.checkLicense = async (req, res) => {
         if (currentDate > user.license_expiration_date) {
             response = {
                 active: false,
-                message: 'Your license has expired.'
+                message: 'Tu licencia ha expirado'
             };
         } else {
             response = {
                 active: true,
                 licenseType: user.license_type,
-                message: 'Your license is active.'
+                message: 'Tu licencia está activa'
             };
         }
 
@@ -40,6 +40,6 @@ exports.checkLicense = async (req, res) => {
 
         res.status(200).json(response);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: 'Error al verificar la licencia: ' + error.message });
     }
 };

@@ -8,8 +8,10 @@ async function seedDocumentTypes() {
   if (count > 0) return;
   await DocumentType.bulkCreate([
     { name: 'DNI' },
-    { name: 'CE' },
-    { name: 'Pasaporte' },
+    { name: 'CARNET DE EXTRANJERIA' },
+    { name: 'PASAPORTE' },
+    { name: 'RUC' },
+    { name: 'BREVETE' },
   ]);
   console.log('Seeded: document_types');
 }

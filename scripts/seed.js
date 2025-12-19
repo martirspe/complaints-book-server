@@ -1,6 +1,6 @@
 /* Dev seed script: inserts baseline data if tables are empty */
 const { connectDB } = require('../config/db');
-const { DocumentType, ConsumptionType, ClaimType, User } = require('../models');
+const { DocumentType, ConsumptionType, ClaimType, Currency, User } = require('../models');
 const bcrypt = require('bcrypt');
 
 async function seedDocumentTypes() {
@@ -36,6 +36,16 @@ async function seedClaimTypes() {
   console.log('Seeded: claim_types');
 }
 
+async function seedCurrencies() {
+  const count = await Currency.count();
+  if (count > 0) return;
+  await Currency.bulkCreate([
+    { code: 'PEN', name: 'Sol Peruano', symbol: 'S/.', is_active: true },
+    { code: 'USD', name: 'Dólar Estadounidense', symbol: '$', is_active: true },
+  ]);
+  console.log('Seeded: currencies');
+}
+
 async function seedAdminUser() {
   const defaultEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
   const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
@@ -60,6 +70,7 @@ async function seedAdminUser() {
     await seedDocumentTypes();
     await seedConsumptionTypes();
     await seedClaimTypes();
+    await seedCurrencies();
     await seedAdminUser();
     console.log('Seeding completed.');
     process.exit(0);

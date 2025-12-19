@@ -5,6 +5,7 @@ const Tutor = require('./Tutor');
 const DocumentType = require('./DocumentType');
 const ConsumptionType = require('./ConsumptionType');
 const ClaimType = require('./ClaimType');
+const Currency = require('./Currency');
 const Claim = require('./Claim');
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
   DocumentType,
   ConsumptionType,
   ClaimType,
+  Currency,
   Claim
 };

@@ -3,7 +3,7 @@ const moment = require('moment');
 exports.formatDate = (date) => moment(date).format('DD/MM/YYYY - hh:mmA');
 
 exports.prepareEmailData = (reclamo) => {
-  const { 
+  const {
     code,
     order_number,
     claimed_amount,
@@ -12,8 +12,16 @@ exports.prepareEmailData = (reclamo) => {
     request,
     Customer,
     ConsumptionType,
-    ClaimType
+    ClaimType,
+    Currency,
   } = reclamo;
+
+  const currencySymbol = Currency?.symbol || '';
+  const currencyCode = Currency?.code || '';
+  const numericAmount = Number(claimed_amount);
+  const amountFormatted = Number.isFinite(numericAmount)
+    ? `${currencySymbol ? `${currencySymbol} ` : ''}${numericAmount.toFixed(2)}`
+    : claimed_amount;
 
   return {
     claimCode: code,
@@ -22,7 +30,9 @@ exports.prepareEmailData = (reclamo) => {
     consumptionType: ConsumptionType.name,
     claimType: ClaimType.name,
     orderNumber: order_number,
-    claimedAmount: claimed_amount,
+    claimedAmount: amountFormatted,
+    currencyCode,
+    currencySymbol,
     claimDescription: description,
     claimDetail: detail,
     claimRequest: request,

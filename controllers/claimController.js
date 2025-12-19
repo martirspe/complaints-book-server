@@ -1,5 +1,5 @@
 // Data Models
-const { User, Customer, Tutor, ConsumptionType, ClaimType, Claim } = require('../models');
+const { User, Customer, Tutor, ConsumptionType, ClaimType, Currency, Claim } = require('../models');
 
 // Utilities
 const { formatDate, prepareEmailData } = require('../utils/emailUtils');
@@ -10,18 +10,19 @@ const sendEmail = require('../services/emailService');
 // Create a new claim
 exports.createClaim = async (req, res) => {
   try {
-    const { customer_id, tutor_id, claim_type_id, consumption_type_id, ...claimData } = req.body;
+    const { customer_id, tutor_id, claim_type_id, consumption_type_id, currency_id, ...claimData } = req.body;
 
     // Find all related records at once
-    const [customer, tutor, consumptionType, claimType] = await Promise.all([
+    const [customer, tutor, consumptionType, claimType, currency] = await Promise.all([
       Customer.findByPk(customer_id),
       tutor_id ? Tutor.findByPk(tutor_id) : null,
       ConsumptionType.findByPk(consumption_type_id),
-      ClaimType.findByPk(claim_type_id)
+      ClaimType.findByPk(claim_type_id),
+      Currency.findByPk(currency_id)
     ]);
 
     // Check if all necessary records exist
-    if (!customer || !consumptionType || !claimType || (tutor_id && !tutor)) {
+    if (!customer || !consumptionType || !claimType || !currency || (tutor_id && !tutor)) {
       return res.status(404).json({ message: 'Uno o más registros no fueron encontrados' });
     }
 
@@ -36,18 +37,20 @@ exports.createClaim = async (req, res) => {
       tutor_id,
       consumption_type_id,
       claim_type_id,
+      currency_id,
       ...claimData
     });
 
     // Generate claim code
     const currentYear = new Date().getFullYear();
     const prefix = claimType.name.substring(0, 3).toUpperCase();
-    claim.code = `${prefix}${currentYear}${claim.id}`;
+    const sequential = String(claim.id).padStart(6, '0'); // human-friendly, fixed width
+    claim.code = `${prefix}-${currentYear}-${sequential}`;
     await claim.save();
 
     // Reload the claim with relations to prepare email data
     const completeClaim = await Claim.findByPk(claim.id, {
-      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }]
+      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
     });
 
     // Prepare data for email sending
@@ -82,7 +85,7 @@ exports.createClaim = async (req, res) => {
 exports.getClaims = async (req, res) => {
   try {
     const claims = await Claim.findAll({
-      include: [{ model: Customer }, { model: Tutor }, { model: ConsumptionType }, { model: ClaimType }]
+      include: [{ model: Customer }, { model: Tutor }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
     });
 
     // Check if there are registered claims
@@ -100,7 +103,7 @@ exports.getClaims = async (req, res) => {
 exports.getClaimById = async (req, res) => {
   try {
     const claim = await Claim.findByPk(req.params.id, {
-      include: [{ model: Customer }, { model: Tutor }, { model: ConsumptionType }, { model: ClaimType }]
+      include: [{ model: Customer }, { model: Tutor }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
     });
 
     if (!claim) {
@@ -130,7 +133,7 @@ exports.updateClaim = async (req, res) => {
     }
 
     const updatedClaim = await Claim.findByPk(id, {
-      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }]
+      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
     });
 
     const emailData = {
@@ -184,7 +187,7 @@ exports.assignClaim = async (req, res) => {
     // Find the claim and assigned user simultaneously
     const [claim, user] = await Promise.all([
       Claim.findByPk(id, {
-        include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }]
+        include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
       }),
       User.findByPk(assigned_user)
     ]);
@@ -237,7 +240,7 @@ exports.resolveClaim = async (req, res) => {
     const { response, resolved } = req.body;
 
     const claim = await Claim.findByPk(id, {
-      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }]
+      include: [{ model: Customer }, { model: ConsumptionType }, { model: ClaimType }, { model: Currency }]
     });
 
     if (!claim) {

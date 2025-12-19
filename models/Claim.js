@@ -9,6 +9,7 @@ const Customer = require('./Customer');
 const Tutor = require('./Tutor');
 const ConsumptionType = require('./ConsumptionType');
 const ClaimType = require('./ClaimType');
+const Currency = require('./Currency');
 
 const Claim = sequelize.define('Claim', {
   id: {
@@ -52,6 +53,15 @@ const Claim = sequelize.define('Claim', {
       model: ClaimType,
       key: 'id'
     }
+  },
+  currency_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Currency,
+      key: 'id'
+    },
+    defaultValue: 1 // Default: Sol Peruano
   },
   order_number: {
     type: DataTypes.INTEGER,
@@ -137,5 +147,8 @@ Claim.belongsTo(ConsumptionType, { foreignKey: 'consumption_type_id' });
 
 User.hasMany(Claim, { foreignKey: 'assigned_user', as: 'assignedClaims' });
 Claim.belongsTo(User, { foreignKey: 'assigned_user', as: 'assignedUser' });
+
+Currency.hasMany(Claim, { foreignKey: 'currency_id' });
+Claim.belongsTo(Currency, { foreignKey: 'currency_id' });
 
 module.exports = Claim;

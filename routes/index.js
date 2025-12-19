@@ -7,6 +7,7 @@ const tutorRoutes = require('./tutorRoutes');
 const documentTypeRoutes = require('./documentTypeRoutes');
 const consumptionTypeRoutes = require('./consumptionTypeRoutes');
 const claimTypeRoutes = require('./claimTypeRoutes');
+const currencyRoutes = require('./currencyRoutes');
 const claimRoutes = require('./claimRoutes');
 const licenseRoutes = require('./licenseRoutes');
 const uploadRoutes = require('./uploadRoutes');
@@ -31,6 +32,9 @@ router.use('/api', consumptionTypeRoutes);
 
 // Claim type API routes
 router.use('/api', claimTypeRoutes);
+
+// Currency API routes
+router.use('/api', currencyRoutes);
 
 // Claims API routes
 router.use('/api', claimRoutes);

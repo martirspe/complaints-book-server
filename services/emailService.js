@@ -7,8 +7,8 @@ const branding = require('../config/branding');
 
 // Get data from environment variables and branding config
 const BRANDING_COMPANY_NAME = branding.companyName || 'MartiPE';
-const BRANDING_LOGO_LIGHT_PATH = branding.logoLightPath || 'assets/logos/logo-light.png';
-const BRANDING_LOGO_DARK_PATH = branding.logoDarkPath || 'assets/logos/logo-dark.png';
+const BRANDING_LOGO_LIGHT_PATH = branding.logoLightPath || 'uploads/logos/logo-light.png';
+const BRANDING_LOGO_DARK_PATH = branding.logoDarkPath || 'uploads/logos/logo-dark.png';
 
 // Use light logo path for emails by default
 const EMAIL_LOGO_PATH = BRANDING_LOGO_LIGHT_PATH;
@@ -47,12 +47,19 @@ const sendEmail = async (to, subject, text, templateName, replacements, attachme
         });
 
         // Include the company logo as an embedded attachment
-        const logoPath = path.join(__dirname, EMAIL_LOGO_PATH);
-        attachments.push({
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'companylogo' // CID used in HTML template
-        });
+        // Navigate from services folder to uploads folder (one level up from services)
+        const logoPath = path.join(__dirname, '..', EMAIL_LOGO_PATH);
+        
+        // Check if logo file exists before attaching
+        if (fs.existsSync(logoPath)) {
+            attachments.push({
+                filename: 'logo.png',
+                path: logoPath,
+                cid: 'companylogo' // CID used in HTML template
+            });
+        } else {
+            console.warn(`Logo file not found at path: ${logoPath}`);
+        }
 
         // Definition of email
         const mailOptions = {

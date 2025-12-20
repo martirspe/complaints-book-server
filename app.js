@@ -55,9 +55,9 @@ app.options('*', cors(corsOptions));
 // Middleware to parse the body of requests as JSON
 app.use(express.json());
 
-// Serve static assets (logos, etc.) with permissive headers for cross-origin usage
+// Serve uploads directory (user-uploaded logos, claim attachments, etc.)
 const path = require('path');
-app.use('/assets', express.static(path.join(__dirname, 'services', 'assets'), {
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');

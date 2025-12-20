@@ -13,14 +13,14 @@ module.exports = {
   // Color Scheme (Brand colors used throughout the client app)
   // Primary: Main action color (buttons, links, accents)
   // Accent: Secondary color for highlights and borders
-  primaryColor: process.env.BRANDING_PRIMARY_COLOR || '#01b681',     // Green - Trust & Growth
-  accentColor: process.env.BRANDING_ACCENT_COLOR || '#2d2a26',       // Dark Brown - Professionalism
+  primaryColor: process.env.BRANDING_PRIMARY_COLOR || '#1a1a1a',     // Negro profundo
+  accentColor: process.env.BRANDING_ACCENT_COLOR || '#3a3a3a',       // Gris oscuro sutil
 
   // Asset Paths (relative to server root where static assets are served)
   // Light logo: Use on dark backgrounds
   // Dark logo: Use on light backgrounds
   // Favicon: 16x16 or 32x32 recommended
-  logoLightPath: process.env.BRANDING_LOGO_LIGHT_PATH || 'assets/logos/logo-light.png',
-  logoDarkPath: process.env.BRANDING_LOGO_DARK_PATH || 'assets/logos/logo-dark.png',
-  faviconPath: process.env.BRANDING_FAVICON_PATH || 'assets/logos/favicon.png',
+  logoLightPath: process.env.BRANDING_LOGO_LIGHT_PATH || 'uploads/logos/logo-light.png',
+  logoDarkPath: process.env.BRANDING_LOGO_DARK_PATH || 'uploads/logos/logo-dark.png',
+  faviconPath: process.env.BRANDING_FAVICON_PATH || 'uploads/logos/favicon.png',
 };

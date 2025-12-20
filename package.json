@@ -2,18 +2,20 @@
   "name": "complaints-book-server",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "node scripts/seed.js",
-    "migrate:docnum": "node scripts/migrate_docnum.js"
+    "seed": "node src/scripts/seed.js",
+    "seed:default": "node src/scripts/seed-default.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "pino": "^9.0.0",
+    "pino-http": "^9.0.0",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -26,7 +28,6 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
     "morgan": "^1.10.0",
-    "mongoose": "^8.4.4",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.10.2",
     "nodemailer": "^6.9.14",
@@ -36,6 +37,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "pino-pretty": "^11.0.0"
   }
 }

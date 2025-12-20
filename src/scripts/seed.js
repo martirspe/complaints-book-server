@@ -1,7 +1,7 @@
 /* Dev seed script: inserts baseline data if tables are empty */
 const { connectDB } = require('../config/db');
 const { DocumentType, ConsumptionType, ClaimType, Currency, User, Tenant, UserTenant, ApiKey, Subscription } = require('../models');
-const branding = require('../config/branding');
+const defaultTenant = require('../config/defaultTenant');
 const bcrypt = require('bcrypt');
 const { generateApiKey } = require('../utils/apiKeyUtils');
 
@@ -54,14 +54,15 @@ async function seedDefaultTenant() {
   if (!tenant) {
     tenant = await Tenant.create({
       slug: defaultSlug,
-      company_brand: branding.companyBrand,
-      company_name: branding.companyName,
-      company_ruc: branding.companyRuc,
-      primary_color: branding.primaryColor,
-      accent_color: branding.accentColor,
-      logo_light_url: branding.logoLightPath,
-      logo_dark_url: branding.logoDarkPath,
-      favicon_url: branding.faviconPath,
+      company_brand: defaultTenant.companyBrand,
+      company_name: defaultTenant.companyName,
+      company_ruc: defaultTenant.companyRuc,
+      primary_color: defaultTenant.primaryColor,
+      accent_color: defaultTenant.accentColor,
+      logo_light_url: defaultTenant.logoLightPath,
+      logo_dark_url: defaultTenant.logoDarkPath,
+      favicon_url: defaultTenant.faviconPath,
+      notifications_email: process.env.DEFAULT_TENANT_NOTIFICATIONS_EMAIL || defaultTenant.notificationsEmail,
     });
     console.log(`Seeded: tenant (${defaultSlug})`);
   }

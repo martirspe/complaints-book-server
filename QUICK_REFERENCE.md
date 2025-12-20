@@ -5,11 +5,13 @@
 **¿Qué pasó?**  
 La lógica antigua de licencias (`licenseController.js`) fue consolidada en el nuevo sistema de suscripciones (`subscriptionController.js`) y los archivos legacy ya fueron eliminados.
 
-**¿Qué cambió?**  
+- **¿Qué cambió?**  
 - ❌ Licencias por usuario → ✅ Suscripciones por tenant
 - ❌ Dos archivos redundantes → ✅ Un controller consolidado
 - ❌ Sin feature gates → ✅ `requireFeature()` middleware
 - ❌ Sin metering → ✅ `getUsage()` endpoint
+- 🔔 Notificaciones por tenant: los correos BCC usan `notifications_email` del tenant; si falta, caen en `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` y luego en `defaultTenant.js`.
+- 🖼️ Branding por defecto servido desde `assets/default-tenant` (logo-light, logo-dark, favicon); los logos subidos por tenants viven en `uploads/logos`.
 
 **¿Qué sigue funcionando?**  
 ✅ Todo. El endpoint legacy `/api/license/:userId` sigue activo desde `subscriptionController`.

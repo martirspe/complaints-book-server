@@ -71,7 +71,8 @@ exports.createClaim = async (req, res) => {
       `Hola ${customer.first_name}, se ha registrado su reclamo con el código: ${claim.code}.`,
       'newClaim',
       emailData,
-      attachments
+      attachments,
+      { tenant: req.tenant }
     );
 
     res.status(201).json({
@@ -159,7 +160,8 @@ exports.updateClaim = async (req, res) => {
       `Hola ${updatedClaim.Customer.first_name}, su reclamo con el código: ${updatedClaim.code} ha sido actualizado.`,
       'updatedClaim',
       emailData,
-      attachments
+      attachments,
+      { tenant: req.tenant }
     );
 
     return res.status(200).json({
@@ -235,6 +237,8 @@ exports.assignClaim = async (req, res) => {
       `Hola ${user.first_name}, se le ha asignado el reclamo con el código: ${claim.code}.`,
       'claimAssigned',
       emailData,
+      [],
+      { tenant: req.tenant }
     );
 
     res.status(200).json({
@@ -294,7 +298,8 @@ exports.resolveClaim = async (req, res) => {
       `Hola ${claim.Customer.first_name}, su reclamo con el código: ${claim.code} ha sido resuelto.`,
       'claimResolved',
       emailData,
-      attachments
+      attachments,
+      { tenant: req.tenant }
     );
 
     res.status(200).json({

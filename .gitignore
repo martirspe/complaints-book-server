@@ -3,6 +3,7 @@
 # Built application files
 /dist
 /build
+/logs
 /uploads
 
 # Compiled output

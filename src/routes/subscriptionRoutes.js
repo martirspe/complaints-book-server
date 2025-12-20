@@ -7,8 +7,7 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const subscriptionController = require('../controllers/subscriptionController');
-const { authMiddleware, cacheMiddleware } = require('../middlewares');
-const requireTenantRole = require('../middlewares/rbacMiddleware');
+const requireTenantRole = require('../middlewares/requireTenantRole');
 
 // ============== Public/Authenticated Routes ==============
 

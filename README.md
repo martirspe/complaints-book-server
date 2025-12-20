@@ -8,6 +8,7 @@ API para gestionar reclamos con soporte multi-tenant, RBAC y autenticación híb
 - Autenticación: JWT para usuarios de app; API keys con `scopes` para integraciones; middleware híbrido (JWT o API key) en rutas de claims/integraciones.
 - Seguridad: rate limiting por tenant (Redis), auditoría por request, CORS configurable, validación de uploads con multer.
 - Catálogos básicos (document types, claim types, consumption types, currencies) y branding por tenant.
+- Notificaciones por tenant: los emails copian en BCC el `notifications_email` del tenant; si falta, usa `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` y luego `defaultTenant.js`.
 - Seeds: script completo (incluye API key) y seed mínimo.
 
 ## Requisitos
@@ -38,11 +39,19 @@ DB_PASSWORD=
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=changeme
 ALLOWED_ORIGINS=http://localhost:4200
-SUPPORT_EMAIL=soporte@example.com
 DEFAULT_TENANT_SLUG=default
 FORCE_HTTPS=false
+DEFAULT_TENANT_NOTIFICATIONS_EMAIL=soporte@example.com
 ```
-Opcionales: `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `EMAIL_*` (SMTP), `BRANDING_*` (URLs de logos), `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
+Opcionales: `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `EMAIL_*` (SMTP), `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
+
+Overrides opcionales del tenant por defecto (fallback):
+- `DEFAULT_TENANT_COMPANY_BRAND`, `DEFAULT_TENANT_COMPANY_NAME`, `DEFAULT_TENANT_COMPANY_RUC`
+- `DEFAULT_TENANT_PRIMARY_COLOR`, `DEFAULT_TENANT_ACCENT_COLOR`
+- `DEFAULT_TENANT_LOGO_LIGHT_PATH`, `DEFAULT_TENANT_LOGO_DARK_PATH`, `DEFAULT_TENANT_FAVICON_PATH`
+- `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` (email por defecto para notificaciones del tenant)
+
+Nota: si no defines estos, el sistema usa los valores por defecto de `src/config/defaultTenant.js`. No son obligatorios.
 
 ## Seeds
 - Completo (catálogos + tenant + admin + API key con scopes `claims:read,claims:write`): `npm run seed`
@@ -65,7 +74,7 @@ Credenciales por defecto: admin `admin@example.com` / `admin123` (sobre-escribib
 - API keys (admin JWT): CRUD completo en `/api/tenants/:slug/api-keys` - crear, listar, actualizar, revocar, reactivar, eliminar permanentemente; estadísticas de uso.
 - Suscripciones (SaaS): `GET /api/tenants/:slug/billing/plans`, `GET /billing/subscription`, `GET /billing/usage`, `POST /billing/upgrade` (admin), `POST /billing/cancel` (admin).
 - Integraciones (API key con scopes): `POST /api/integrations/:slug/claims` (crear reclamo), `GET /api/integrations/:slug/claims/:id`.
-- Branding: `GET /api/branding` devuelve logos/colores según tenant.
+- Branding: `GET /api/tenants/:slug/branding` y `GET /api/tenants/default/branding` devuelven logos/colores del tenant (URLs absolutas). El endpoint legacy público de tenant fue eliminado.
 
 ### Ejemplo rápido con API key
 ```bash
@@ -78,7 +87,8 @@ curl -X POST http://localhost:3000/api/integrations/default/claims \
 
 ## Branding y despliegue
 - Para URLs HTTPS forzadas en branding, define `NODE_ENV=production` o `FORCE_HTTPS=true`.
-- Si sirves imágenes locales, asegura los directorios `uploads/logos` y `uploads/claims`. Alternativa recomendada: apuntar `BRANDING_*` a URLs públicas/CDN.
+- Activos por defecto se sirven desde `assets/default-tenant` (logo-light, logo-dark, favicon). Los logos subidos por tenants viven en `uploads/logos` y los adjuntos de reclamos en `uploads/claims`. Puedes sobreescribir rutas con `DEFAULT_TENANT_*` o usar URLs públicas/CDN.
+- Los correos de notificación usan `notifications_email` del tenant; de no existir, caen en `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` y luego en el valor de `defaultTenant.notificationsEmail`.
 
 ## Salud y monitoreo
 - `GET /health` retorna estado de base de datos.

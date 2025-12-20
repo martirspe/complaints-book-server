@@ -63,7 +63,7 @@ app.use(express.json());
 // Ensure upload folders exist on startup (useful in hosting environments)
 const fs = require('fs');
 const path = require('path');
-['uploads/logos', 'uploads/claims', 'logs', 'assets/default-branding'].forEach((dir) => {
+['uploads/logos', 'uploads/claims', 'logs', 'assets/default-tenant'].forEach((dir) => {
   const fullPath = path.join(__dirname, '..', dir);
   if (!fs.existsSync(fullPath)) {
     fs.mkdirSync(fullPath, { recursive: true });

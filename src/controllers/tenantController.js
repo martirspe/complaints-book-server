@@ -148,7 +148,7 @@ exports.getTenantBySlug = async (req, res) => {
 exports.updateTenant = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { company_name, domain, contact_email, contact_phone } = req.body;
+    const { company_name, domain, contact_email, contact_phone, notifications_email } = req.body;
 
     const tenant = await Tenant.findOne({ where: { slug } });
 
@@ -161,6 +161,7 @@ exports.updateTenant = async (req, res) => {
     if (domain !== undefined) tenant.domain = domain;
     if (contact_email !== undefined) tenant.contact_email = contact_email;
     if (contact_phone !== undefined) tenant.contact_phone = contact_phone;
+    if (notifications_email !== undefined) tenant.notifications_email = notifications_email;
 
     await tenant.save();
 

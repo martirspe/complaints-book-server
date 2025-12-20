@@ -45,6 +45,11 @@ const Tenant = sequelize.define('Tenant', {
     type: DataTypes.STRING,
     allowNull: true
   }
+  ,
+  notifications_email: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
 }, {
   timestamps: true,
   createdAt: 'creation_date',

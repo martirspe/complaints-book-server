@@ -7,7 +7,7 @@ const defaultTenant = require('../config/defaultTenant');
 
 // Helper to resolve branding per tenant with fallback to global config
 const resolveBranding = (tenant) => {
-    const companyName = tenant?.company_name || defaultTenant.companyName || 'MartiPE';
+    const companyName = tenant?.company_name || defaultTenant.companyName || 'ReclamoFácil';
     const companyBrand = tenant?.company_brand || tenant?.company_name || defaultTenant.companyBrand || companyName;
     const logoLightPath = tenant?.logo_light_url || defaultTenant.logoLightPath || 'assets/default-tenant/logo-light.png';
     const logoDarkPath = tenant?.logo_dark_url || defaultTenant.logoDarkPath || 'assets/default-tenant/logo-dark.png';

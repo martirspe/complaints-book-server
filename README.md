@@ -1,4 +1,3 @@
-git clone https://github.com/martirspe/complaints-book-server-pro.git
 # API REST multi-tenant de Libro de Reclamaciones
 
 API para gestionar reclamos con soporte multi-tenant, RBAC y autenticación híbrida (JWT + API keys). Tecnología: Node.js, Express, Sequelize, MySQL y Redis.
@@ -20,7 +19,7 @@ Desde la raíz del repositorio:
 docker compose build
 docker compose up
 ```
-Servicios: API en http://localhost:3000, Angular en http://localhost:4200, MySQL en localhost:3306 (DB `marrso_store`, root sin password), Redis en localhost:6379. Los uploads se montan en `uploads/`.
+Servicios: API en http://localhost:3000, Angular en http://localhost:4200, MySQL en localhost:3306 (DB `complaints_book`, root sin password), Redis en localhost:6379. Los uploads se montan en `uploads/`.
 
 ## Configuración local (sin Docker)
 ```bash
@@ -33,9 +32,9 @@ Necesitas MySQL y Redis levantados y el archivo `.env` configurado.
 ```
 PORT=3000
 DB_HOST=localhost
-DB_NAME=marrso_store
-DB_USER=root
-DB_PASSWORD=
+DB_NAME=complaints_book
+DB_USER=cb_user
+DB_PASSWORD=cb_password
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=changeme
 ALLOWED_ORIGINS=http://localhost:4200

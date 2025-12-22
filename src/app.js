@@ -41,7 +41,7 @@ const corsOptions = {
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'x-tenant', 'x-api-key'],
   credentials: true,
 };
 
@@ -113,7 +113,7 @@ app.get('/health', async (req, res) => {
 
 // Handle 404 errors: respond with a JSON message if the requested path is not found
 app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ message: 'Route not found' });
 });
 
 // Middleware for error handling
@@ -122,5 +122,5 @@ app.use(errorMiddleware);
 // Start the Express server on the port defined in the environment variables or on port 3000 by default
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port: ${PORT}`);
+  console.log(`Server running on port: ${PORT}`);
 });

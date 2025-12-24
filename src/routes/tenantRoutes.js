@@ -6,7 +6,8 @@
 const express = require('express');
 const { Tenant } = require('../models');
 const tenantController = require('../controllers/tenantController');
-const { authMiddleware } = require('../middlewares');
+const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole } = require('../middlewares');
+const { uploadBranding } = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
@@ -70,8 +71,16 @@ router.get('/tenants', authMiddleware, tenantController.getTenants);
 // Get tenant details with subscription info
 router.get('/tenants/:slug/details', authMiddleware, tenantController.getTenantBySlug);
 
-// Update tenant
-router.put('/tenants/:slug', authMiddleware, tenantController.updateTenant);
+// Update tenant (branding + contact), admin only, allows multipart uploads
+router.put(
+  '/tenants/:slug',
+  authMiddleware,
+  tenantMiddleware,
+  membershipMiddleware,
+  requireTenantRole('admin'),
+  uploadBranding,
+  tenantController.updateTenant
+);
 
 // Delete tenant
 router.delete('/tenants/:slug', authMiddleware, tenantController.deleteTenant);

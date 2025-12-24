@@ -290,8 +290,13 @@ GET  /api/integrations/:slug/claims/:id       # Consultar reclamo
 
 ### Branding (público)
 ```
-GET /api/tenants/:slug/branding              # Logos, colores del tenant
-GET /api/tenants/default/branding            # Branding por defecto
+GET /api/tenants/:slug                       # Logos, colores y datos del tenant
+GET /api/tenants/default                     # Branding/datos del tenant por defecto
+```
+
+### Branding (admin, multipart)
+```
+PUT /api/tenants/:slug                       # Actualizar branding + logos/favicons (rol admin)
 ```
 
 ### Clientes y Tutores (JWT)
@@ -361,6 +366,21 @@ Cada tenant puede personalizar:
 - Logo claro y oscuro
 - Favicon
 - Email de notificaciones
+
+### Actualizar branding (admin)
+Use multipart/form-data sobre el tenant:
+
+```bash
+curl -X PUT http://localhost:3000/api/tenants/default \
+  -H "Authorization: Bearer <adminToken>" \
+  -F "company_brand=Mi Marca" \
+  -F "company_name=Mi Empresa" \
+  -F "primary_color=#005BD4" \
+  -F "accent_color=#0E948C" \
+  -F "logo_light=@./logo-light.png" \
+  -F "logo_dark=@./logo-dark.png" \
+  -F "favicon=@./favicon.ico"
+```
 
 ### URLs HTTPS
 Para forzar URLs HTTPS en producción:

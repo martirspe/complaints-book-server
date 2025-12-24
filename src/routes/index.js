@@ -9,7 +9,6 @@ const consumptionTypeRoutes = require('./consumptionTypeRoutes');
 const claimTypeRoutes = require('./claimTypeRoutes');
 const currencyRoutes = require('./currencyRoutes');
 const claimRoutes = require('./claimRoutes');
-const uploadRoutes = require('./uploadRoutes');
 const tenantRoutes = require('./tenantRoutes');
 const apiKeyRoutes = require('./apiKeyRoutes');
 const integrationRoutes = require('./integrationRoutes');
@@ -40,9 +39,6 @@ router.use('/api', currencyRoutes);
 
 // Claims API routes
 router.use('/api', claimRoutes);
-
-// Upload API routes
-router.use('/api', uploadRoutes);
 
 // Tenant/branding multi-tenant API routes
 router.use('/api', tenantRoutes);

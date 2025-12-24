@@ -303,15 +303,29 @@
     },
 
     {
-      "name": "Uploads",
+      "name": "Tenant Branding (admin)",
       "item": [
         {
-          "name": "Upload Logo",
+          "name": "Update Branding",
           "request": {
-            "method": "POST",
-            "header": [ {"key": "Content-Type", "value": "multipart/form-data"} ],
-            "body": { "mode": "formdata", "formdata": [ {"key": "file", "type": "file", "src": ""} ] },
-            "url": { "raw": "{{baseUrl}}/api/upload/logo", "host": ["{{baseUrl}}"], "path": ["api","upload","logo"] }
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "company_brand", "value": "Mi Marca", "type": "text"},
+                {"key": "company_name", "value": "Mi Empresa", "type": "text"},
+                {"key": "primary_color", "value": "#005BD4", "type": "text"},
+                {"key": "accent_color", "value": "#0E948C", "type": "text"},
+                {"key": "logo_light", "type": "file", "src": ""},
+                {"key": "logo_dark", "type": "file", "src": ""},
+                {"key": "favicon", "type": "file", "src": ""}
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
           }
         }
       ]

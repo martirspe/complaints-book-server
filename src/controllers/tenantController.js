@@ -148,7 +148,7 @@ exports.getTenantBySlug = async (req, res) => {
 exports.updateTenant = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { company_name, domain, contact_email, contact_phone, notifications_email } = req.body;
+    const { company_brand, company_name, company_ruc, domain, contact_email, contact_phone, notifications_email, primary_color, accent_color } = req.body;
 
     const tenant = await Tenant.findOne({ where: { slug } });
 
@@ -156,12 +156,26 @@ exports.updateTenant = async (req, res) => {
       return res.status(404).json({ message: 'Tenant no encontrado' });
     }
 
-    // Update only provided fields
+    // Update only provided fields (branding + contact)
+    if (company_brand !== undefined) tenant.company_brand = company_brand;
     if (company_name !== undefined) tenant.company_name = company_name;
+    if (company_ruc !== undefined) tenant.company_ruc = company_ruc;
     if (domain !== undefined) tenant.domain = domain;
     if (contact_email !== undefined) tenant.contact_email = contact_email;
     if (contact_phone !== undefined) tenant.contact_phone = contact_phone;
     if (notifications_email !== undefined) tenant.notifications_email = notifications_email;
+    if (primary_color !== undefined) tenant.primary_color = primary_color;
+    if (accent_color !== undefined) tenant.accent_color = accent_color;
+
+    // Handle uploaded assets (optional)
+    const filePath = (field) => req.files?.[field]?.[0]?.path;
+    const logoLight = filePath('logo_light');
+    const logoDark = filePath('logo_dark');
+    const favicon = filePath('favicon');
+
+    if (logoLight) tenant.logo_light_url = logoLight;
+    if (logoDark) tenant.logo_dark_url = logoDark;
+    if (favicon) tenant.favicon_url = favicon;
 
     await tenant.save();
 

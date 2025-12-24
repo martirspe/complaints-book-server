@@ -237,8 +237,9 @@ POST /api/tenants/:slug/claims
 # 3. API keys still work (if plan supports)
 POST /api/tenants/:slug/api-keys
 
-# 4. Branding endpoint still works
-GET /api/branding
+# 4. Branding endpoint
+GET /api/tenants/:slug
+GET /api/tenants/default
 
 # 5. Cache middleware works
 GET /api/tenants/:slug/license/:userId (should be cached second time)

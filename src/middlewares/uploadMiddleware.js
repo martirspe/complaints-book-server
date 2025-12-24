@@ -56,4 +56,14 @@ const uploadClaim = createUploadMiddleware(uploadConfigs.claims, 'attachment');
 // Middleware for uploading attachments in claim responses
 const uploadResolveClaim = createUploadMiddleware(uploadConfigs.claims, 'response_attachment');
 
-module.exports = { uploadLogo, uploadClaim, uploadResolveClaim };
+// Middleware for tenant assets (logos, favicon) — optional files
+const uploadBranding = (() => {
+  const upload = createUpload(uploadConfigs.logos.path, uploadConfigs.logos.fileTypes, uploadConfigs.logos.errorMessage);
+  return upload.fields([
+    { name: 'logo_light', maxCount: 1 },
+    { name: 'logo_dark', maxCount: 1 },
+    { name: 'favicon', maxCount: 1 }
+  ]);
+})();
+
+module.exports = { uploadLogo, uploadClaim, uploadResolveClaim, uploadBranding };

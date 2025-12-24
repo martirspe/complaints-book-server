@@ -1,94 +1,453 @@
-# API REST multi-tenant de Libro de Reclamaciones
+# reclamofacil-server — API REST multi-tenant
 
-API para gestionar reclamos con soporte multi-tenant, RBAC y autenticación híbrida (JWT + API keys). Tecnología: Node.js, Express, Sequelize, MySQL y Redis.
+API REST para gestión de Libro de Reclamaciones con arquitectura SaaS multi-tenant completa. Sistema empresarial de reclamos con RBAC, autenticación híbrida (JWT + API Keys), suscripciones por planes, branding personalizado y notificaciones automatizadas.
 
-## Características clave
-- Multi-tenant: resolución de tenant por subdominio, header `x-tenant`/`x-tenant-slug` o parámetro de ruta; pertenencia vía `UserTenant`.
-- Autenticación: JWT para usuarios de app; API keys con `scopes` para integraciones; middleware híbrido (JWT o API key) en rutas de claims/integraciones.
-- Seguridad: rate limiting por tenant (Redis), auditoría por request, CORS configurable, validación de uploads con multer.
-- Catálogos básicos (document types, claim types, consumption types, currencies) y branding por tenant.
-- Notificaciones por tenant: los emails copian en BCC el `notifications_email` del tenant; si falta, usa `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` y luego `defaultTenant.js`.
-- Seeds: script completo (incluye API key) y seed mínimo.
+**Stack:** Node.js 18+ • Express • Sequelize • MySQL 8 • Redis 7
 
-## Requisitos
-- Docker Desktop (recomendado) o Node 18+, MySQL 8 y Redis 7.
+---
 
-## Arranque rápido con Docker (monorepo)
-Desde la raíz del repositorio:
+## 🎯 Funcionalidad principal
+
+### Sistema de gestión de reclamos
+- **CRUD completo de reclamos** con flujos de estado (pendiente → asignado → resuelto)
+- **Gestión de clientes y tutores** para reclamos
+- **Catálogos configurables**: tipos de documento, tipos de consumo, tipos de reclamo, monedas
+- **Adjuntos de archivos** con validación y almacenamiento seguro
+- **Notificaciones por email** automatizadas en cada cambio de estado
+
+### Arquitectura multi-tenant
+- **Aislamiento de datos** por tenant (empresa/organización)
+- **Resolución de tenant** por subdominio, header `x-tenant`/`x-tenant-slug` o parámetro de ruta
+- **Pertenencia de usuarios** vía tabla `user_tenants` con roles por tenant
+- **Branding personalizado** (logos, colores, nombre de empresa) por tenant
+
+### Sistema de suscripciones SaaS
+- **4 planes disponibles**: Free, Basic, Professional, Enterprise
+- **Feature gating**: acceso a funcionalidades según plan (API access, custom branding, etc.)
+- **Usage metering**: seguimiento de uso vs límites del plan
+- **Rate limiting dinámico**: basado en el plan (30-1000 req/min)
+- **Billing endpoints**: upgrade/downgrade de planes, cancelación
+
+### Autenticación y seguridad
+- **JWT** para usuarios de la aplicación web
+- **API Keys** con scopes para integraciones externas (`claims:read`, `claims:write`)
+- **Autenticación híbrida**: endpoints aceptan JWT o API key
+- **RBAC por tenant**: roles `admin` y `staff` con permisos diferenciados
+- **Auditoría**: logging de todas las operaciones sensibles
+- **Rate limiting** por tenant usando Redis
+- **CORS configurable** con whitelist de dominios
+
+### Integraciones
+- **Endpoints de integración** para crear/consultar reclamos vía API key
+- **Sistema de emails** con templates personalizables (HTML)
+- **Branding API**: endpoints públicos para obtener logos y colores del tenant
+- **Health checks**: monitoreo de estado de BD y servicios
+
+---
+
+## 🏗️ Arquitectura
+
+```
+src/
+├── app.js              # Punto de entrada, configuración Express
+├── config/             # Configuración de BD, Redis, planes, defaults
+├── controllers/        # Lógica de negocio (11 controladores)
+├── middlewares/        # Auth, validación, rate limiting, feature gates
+├── models/             # 12 modelos Sequelize (User, Claim, Tenant, etc.)
+├── routes/             # Definición de endpoints (13 archivos)
+├── scripts/            # Seeds de inicialización
+├── services/           # Email service con templates HTML
+└── utils/              # Helpers (JWT, API keys, logger)
+```
+
+### Modelos principales
+- **Tenant**: empresas/organizaciones (slug, branding, notificaciones)
+- **User**: usuarios del sistema (email, password, role)
+- **UserTenant**: relación many-to-many con roles por tenant
+- **Claim**: reclamos (customer, tipo, descripción, estado, adjuntos)
+- **Customer/Tutor**: clientes y sus tutores legales
+- **Subscription**: suscripción del tenant (plan, estado, billing cycle)
+- **ApiKey**: claves de integración con scopes y hash seguro
+- **Catálogos**: DocumentType, ConsumptionType, ClaimType, Currency
+
+---
+
+## 🚀 Inicio rápido
+
+### Requisitos
+- **Docker Desktop** (recomendado) o Node 18+, MySQL 8, Redis 7
+- Variables de entorno configuradas (ver `.env.example`)
+
+### Opción 1: Docker (recomendado)
+Desde la **raíz del monorepo**:
 ```bash
 docker compose build
 docker compose up
 ```
-Servicios: API en http://localhost:3000, Angular en http://localhost:4200, MySQL en localhost:3306 (DB `complaints_book`, root sin password), Redis en localhost:6379. Los uploads se montan en `uploads/`.
 
-## Configuración local (sin Docker)
+**Servicios disponibles:**
+- 🌐 API: http://localhost:3000
+- 🎨 Angular: http://localhost:4200
+- 🗄️ MySQL: localhost:3306 (DB `reclamofacil_db`)
+- ⚡ Redis: localhost:6379
+- 📁 Uploads: montados en `uploads/`
+
+### Opción 2: Local (sin Docker)
 ```bash
+cd reclamofacil-server
 npm install
-npm run dev   # nodemon
+npm run dev   # nodemon con hot reload
 ```
-Necesitas MySQL y Redis levantados y el archivo `.env` configurado.
+⚠️ Requiere MySQL y Redis levantados localmente.
 
-## Variables de entorno mínimas
+### Variables de entorno
+Copia y configura el archivo `.env`:
+```bash
+cp .env.example .env
 ```
-PORT=3000
+
+**Variables esenciales:**
+```env
+# Base de datos
 DB_HOST=localhost
-DB_NAME=complaints_book
-DB_USER=cb_user
-DB_PASSWORD=cb_password
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=changeme
-ALLOWED_ORIGINS=http://localhost:4200
-DEFAULT_TENANT_SLUG=default
-FORCE_HTTPS=false
-DEFAULT_TENANT_NOTIFICATIONS_EMAIL=soporte@example.com
-```
-Opcionales: `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `EMAIL_*` (SMTP), `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
+DB_NAME=reclamofacil_db
+DB_USER=root
+DB_PASSWORD=
 
-Overrides opcionales del tenant por defecto (fallback):
-- `DEFAULT_TENANT_COMPANY_BRAND`, `DEFAULT_TENANT_COMPANY_NAME`, `DEFAULT_TENANT_COMPANY_RUC`
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# JWT
+JWT_SECRET=your-secret-key-here
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:4200
+
+# Email (opcional, para notificaciones)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+```
+
+**Variables opcionales de branding:**
+- `DEFAULT_TENANT_COMPANY_NAME`, `DEFAULT_TENANT_COMPANY_BRAND`, `DEFAULT_TENANT_COMPANY_RUC`
 - `DEFAULT_TENANT_PRIMARY_COLOR`, `DEFAULT_TENANT_ACCENT_COLOR`
 - `DEFAULT_TENANT_LOGO_LIGHT_PATH`, `DEFAULT_TENANT_LOGO_DARK_PATH`, `DEFAULT_TENANT_FAVICON_PATH`
-- `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` (email por defecto para notificaciones del tenant)
+- `DEFAULT_TENANT_NOTIFICATIONS_EMAIL`
 
-Nota: si no defines estos, el sistema usa los valores por defecto de `src/config/defaultTenant.js`. No son obligatorios.
+Si no defines estos, se usan los valores de [src/config/defaultTenant.js](src/config/defaultTenant.js).
 
-## Seeds
-- Completo (catálogos + tenant + admin + API key con scopes `claims:read,claims:write`): `npm run seed`
-- Minimal (catálogos + tenant + admin, sin API key): `npm run seed:default`
+---
 
-Credenciales por defecto: admin `admin@example.com` / `admin123` (sobre-escribibles por env). El seed completo imprime la API key una sola vez: guárdala.
+## 🌱 Inicialización de datos
 
-## Autenticación y tenancy
-- Tenancy: usar ruta `/tenants/:slug`, header `x-tenant`/`x-tenant-slug` o subdominio (`slug.api.local`). El JWT incluye `tenant_slug` y se valida contra el tenant resuelto.
-- Roles: `admin` y `staff` por tenant (tabla `user_tenants`); middleware `requireTenantRole` protege rutas de administración.
-- API keys: hash en BD; header `x-api-key`. Scopes disponibles: `claims:read`, `claims:write`, `branding:read` (extensible). Actualiza `last_used_at` en cada request.
-- Híbrido: rutas de claims y de integraciones aceptan JWT o API key (`apiKeyOrJwt`); se aplica rate limit por tenant.
-- Auditoría: middleware registra método, ruta, usuario/API key y respuesta.
+Después de levantar el servidor, ejecuta uno de los seeds:
 
-## Endpoints principales (resumen)
-- Catálogos públicos: `GET /api/document_types`, `GET /api/consumption_types`, `GET /api/claim_types`, `GET /api/currencies`.
-- Auth usuarios: `POST /api/users/login` (JWT), CRUD de usuarios con RBAC y pertenencia de tenant.
-- Tenants (admin JWT): CRUD completo en `/api/tenants` - crear, listar, actualizar, eliminar tenants; estadísticas de uso por tenant.
-- Claims (híbrido JWT o API key): `GET/POST /api/tenants/:slug/claims`, `GET/PUT/DELETE /api/tenants/:slug/claims/:id`, flujos de asignación/resolución según rol.
-- API keys (admin JWT): CRUD completo en `/api/tenants/:slug/api-keys` - crear, listar, actualizar, revocar, reactivar, eliminar permanentemente; estadísticas de uso.
-- Suscripciones (SaaS): `GET /api/tenants/:slug/billing/plans`, `GET /billing/subscription`, `GET /billing/usage`, `POST /billing/upgrade` (admin), `POST /billing/cancel` (admin).
-- Integraciones (API key con scopes): `POST /api/integrations/:slug/claims` (crear reclamo), `GET /api/integrations/:slug/claims/:id`.
-- Branding: `GET /api/tenants/:slug/branding` y `GET /api/tenants/default/branding` devuelven logos/colores del tenant (URLs absolutas). El endpoint legacy público de tenant fue eliminado.
-
-### Ejemplo rápido con API key
+### Seed completo (recomendado)
 ```bash
-# Crear reclamo vía integración usando API key sembrada
-curl -X POST http://localhost:3000/api/integrations/default/claims \
-  -H "x-api-key: <API_KEY_IMPRESA_EN_SEED>" \
-  -H "Content-Type: application/json" \
-  -d '{"customer_id":1,"consumption_type_id":1,"claim_type_id":1,"description":"Ejemplo"}'
+npm run seed
+# o con Docker:
+docker compose exec server npm run seed
 ```
 
-## Branding y despliegue
-- Para URLs HTTPS forzadas en branding, define `NODE_ENV=production` o `FORCE_HTTPS=true`.
-- Activos por defecto se sirven desde `assets/default-tenant` (logo-light, logo-dark, favicon). Los logos subidos por tenants viven en `uploads/logos` y los adjuntos de reclamos en `uploads/claims`. Puedes sobreescribir rutas con `DEFAULT_TENANT_*` o usar URLs públicas/CDN.
-- Los correos de notificación usan `notifications_email` del tenant; de no existir, caen en `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` y luego en el valor de `defaultTenant.notificationsEmail`.
+**Inicializa:**
+- ✅ Catálogos básicos (5 tipos de documento, 2 tipos de consumo, 2 tipos de reclamo, 2 monedas)
+- ✅ Tenant por defecto (slug: `default`)
+- ✅ Usuario administrador
+- ✅ Suscripción plan Free (1 año)
+- ✅ **API Key** con scopes `claims:read,claims:write` (se imprime en consola)
 
-## Salud y monitoreo
-- `GET /health` retorna estado de base de datos.
-- Rate limiting y cache usan Redis; revisa métricas en tu instancia de Redis.
+**Credenciales por defecto:**
+- 📧 Email: `admin@example.com`
+- 🔑 Password: `admin123`
+- 🔐 API Key: impresa en consola (guárdala)
+
+### Seed mínimo
+```bash
+npm run seed:default
+```
+Igual que el completo pero **sin API Key** (útil para desarrollo frontend puro).
+
+### Personalizar credenciales
+```bash
+ADMIN_EMAIL=admin@miempresa.com ADMIN_PASSWORD=mipassword npm run seed
+```
+
+---
+
+## 🔐 Autenticación
+
+### JWT (usuarios web)
+```bash
+# Login
+POST /api/users/login
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+# Response
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": { ... }
+}
+
+# Usar en headers
+Authorization: Bearer <token>
+```
+
+### API Keys (integraciones)
+```bash
+# Crear API key (requiere JWT de admin)
+POST /api/tenants/:slug/api-keys
+{
+  "label": "Mi integración",
+  "scopes": "claims:read,claims:write"
+}
+
+# Usar en headers
+x-api-key: <key>
+```
+
+### Resolución de tenant
+- **Subdominio**: `acme.api.tudominio.com` → tenant `acme`
+- **Header**: `x-tenant: acme` o `x-tenant-slug: acme`
+- **Ruta**: `/api/tenants/acme/claims`
+
+### Roles por tenant
+- **admin**: acceso completo al tenant (CRUD usuarios, API keys, claims, config)
+- **staff**: acceso limitado (solo claims asignados, lectura de catálogos)
+
+---
+
+## 📡 Endpoints API
+
+### Catálogos públicos (sin auth)
+```
+GET /api/document_types       # Tipos de documento (DNI, RUC, etc.)
+GET /api/consumption_types    # Producto/Servicio
+GET /api/claim_types          # Reclamo/Queja
+GET /api/currencies           # PEN, USD
+```
+
+### Autenticación
+```
+POST /api/users/login         # Login (retorna JWT)
+GET  /api/users               # Listar usuarios del tenant (JWT)
+POST /api/users               # Crear usuario (JWT admin)
+PUT  /api/users/:id           # Actualizar usuario (JWT)
+DELETE /api/users/:id         # Eliminar usuario (JWT admin)
+```
+
+### Tenants (solo admin global)
+```
+GET    /api/tenants                  # Listar todos los tenants
+POST   /api/tenants                  # Crear tenant
+GET    /api/tenants/:slug            # Detalles de tenant
+PUT    /api/tenants/:slug            # Actualizar tenant
+DELETE /api/tenants/:slug            # Eliminar tenant
+GET    /api/tenants/:slug/stats      # Estadísticas de uso
+```
+
+### Claims (JWT o API key)
+```
+GET    /api/tenants/:slug/claims           # Listar reclamos
+POST   /api/tenants/:slug/claims           # Crear reclamo
+GET    /api/tenants/:slug/claims/:id       # Detalle de reclamo
+PUT    /api/tenants/:slug/claims/:id       # Actualizar reclamo
+DELETE /api/tenants/:slug/claims/:id       # Eliminar reclamo
+PUT    /api/tenants/:slug/claims/:id/assign    # Asignar a usuario
+PUT    /api/tenants/:slug/claims/:id/resolve   # Marcar como resuelto
+```
+
+### API Keys (JWT admin)
+```
+GET    /api/tenants/:slug/api-keys         # Listar keys
+POST   /api/tenants/:slug/api-keys         # Crear key
+GET    /api/tenants/:slug/api-keys/:id     # Detalle de key
+PUT    /api/tenants/:slug/api-keys/:id     # Actualizar key
+DELETE /api/tenants/:slug/api-keys/:id     # Eliminar key
+POST   /api/tenants/:slug/api-keys/:id/revoke    # Revocar key
+POST   /api/tenants/:slug/api-keys/:id/reactivate # Reactivar key
+GET    /api/tenants/:slug/api-keys/:id/stats     # Estadísticas de uso
+```
+
+### Suscripciones/Billing (JWT)
+```
+GET  /api/tenants/:slug/billing/plans         # Planes disponibles
+GET  /api/tenants/:slug/billing/subscription  # Suscripción actual
+GET  /api/tenants/:slug/billing/usage         # Uso vs límites
+POST /api/tenants/:slug/billing/upgrade       # Cambiar plan (admin)
+POST /api/tenants/:slug/billing/cancel        # Cancelar (admin)
+```
+
+### Integraciones (solo API key)
+```
+POST /api/integrations/:slug/claims           # Crear reclamo vía integración
+GET  /api/integrations/:slug/claims/:id       # Consultar reclamo
+```
+
+### Branding (público)
+```
+GET /api/tenants/:slug/branding              # Logos, colores del tenant
+GET /api/tenants/default/branding            # Branding por defecto
+```
+
+### Clientes y Tutores (JWT)
+```
+GET    /api/tenants/:slug/customers          # Listar clientes
+POST   /api/tenants/:slug/customers          # Crear cliente
+GET    /api/tenants/:slug/customers/:id      # Detalle de cliente
+PUT    /api/tenants/:slug/customers/:id      # Actualizar cliente
+DELETE /api/tenants/:slug/customers/:id      # Eliminar cliente
+
+GET    /api/tenants/:slug/tutors             # Listar tutores
+POST   /api/tenants/:slug/tutors             # Crear tutor
+GET    /api/tenants/:slug/tutors/:id         # Detalle de tutor
+PUT    /api/tenants/:slug/tutors/:id         # Actualizar tutor
+DELETE /api/tenants/:slug/tutors/:id         # Eliminar tutor
+```
+
+### Health & Monitoring
+```
+GET /health                                  # Estado de DB y servicios
+```
+
+### Ejemplo con API Key
+```bash
+# Crear reclamo vía integración
+curl -X POST http://localhost:3000/api/integrations/default/claims \
+  -H "x-api-key: YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": 1,
+    "consumption_type_id": 1,
+    "claim_type_id": 1,
+    "description": "Producto defectuoso",
+    "amount": 100.00
+  }'
+```
+
+---
+
+## 💼 Planes y suscripciones
+
+| Plan | Precio/mes | Usuarios | Reclamos/mes | Storage | API Access | Branding |
+|------|-----------|----------|--------------|---------|------------|----------|
+| **Free** | $0 | 2 | 100 | 1 GB | ❌ | ❌ |
+| **Basic** | $49 | 5 | 1,000 | 10 GB | ❌ | ✅ |
+| **Professional** | $149 | 20 | 10,000 | 100 GB | ✅ | ✅ |
+| **Enterprise** | Custom | ∞ | ∞ | ∞ | ✅ | ✅ |
+
+**Rate limits:** 30-1000 req/min según plan
+
+Ver [src/config/plans.js](src/config/plans.js) para detalles completos.
+
+---
+
+## 🎨 Branding y personalización
+
+### Activos estáticos
+- **Por defecto**: `assets/default-tenant/` (logo-light, logo-dark, favicon)
+- **Por tenant**: `uploads/logos/` (logos subidos)
+- **Adjuntos**: `uploads/claims/` (archivos de reclamos)
+
+### Configuración de branding
+Cada tenant puede personalizar:
+- Nombre de empresa y marca
+- RUC/ID fiscal
+- Colores primario y de acento
+- Logo claro y oscuro
+- Favicon
+- Email de notificaciones
+
+### URLs HTTPS
+Para forzar URLs HTTPS en producción:
+```bash
+NODE_ENV=production
+# o
+FORCE_HTTPS=true
+```
+
+---
+
+## 📧 Sistema de notificaciones
+
+### Templates de email
+- **newClaim.html**: notificación de nuevo reclamo
+- **claimAssigned.html**: reclamo asignado a usuario
+- **updatedClaim.html**: cambios en el reclamo
+- **claimResolved.html**: reclamo resuelto
+
+### Configuración de emails
+El sistema envía BCC a `notifications_email` del tenant. Fallback:
+1. `notifications_email` del tenant
+2. `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` (env)
+3. `defaultTenant.notificationsEmail` (config)
+
+---
+
+## 🔧 Monitoreo y debugging
+
+### Health check
+```bash
+curl http://localhost:3000/health
+```
+
+### Logs
+- **Ubicación**: `logs/`
+- **Formato**: JSON con pino-http
+- **Incluye**: request ID, timestamp, método, ruta, status, duración
+
+### Métricas Redis
+- Rate limiting: keys por tenant
+- Cache: TTL configurable
+- Usa `redis-cli` para inspeccionar
+
+### Auditoría
+Todas las operaciones sensibles se registran con:
+- Usuario/API key
+- Timestamp
+- Método y ruta
+- Parámetros
+- Respuesta
+
+---
+
+## 📚 Documentación adicional
+
+### Guías técnicas
+- **[SUBSCRIPTIONS.md](SUBSCRIPTIONS.md)** — Sistema de suscripciones SaaS completo
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** — Referencia rápida de endpoints y features
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Índice completo y flujos por rol
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** — Guía de testing con ejemplos
+
+### Reportes de consolidación
+- **[COMPLETION_REPORT.md](COMPLETION_REPORT.md)** — Consolidación y beneficios del sistema
+- **[VERIFICATION_REPORT.md](VERIFICATION_REPORT.md)** — Checklist, métricas y seguridad
+- **[MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md)** — Resumen de migraciones realizadas
+- **[CONSOLIDATION_SUMMARY.md](CONSOLIDATION_SUMMARY.md)** — Consolidación de licencias a suscripciones
+
+### Colección Postman
+- **[postman_collection.json](postman_collection.json)** — Colección completa con todos los endpoints
+
+---
+
+## 🛠️ Scripts disponibles
+
+```bash
+npm start          # Producción (node)
+npm run dev        # Desarrollo (nodemon con hot reload)
+npm run seed       # Seed completo (con API key)
+npm run seed:default  # Seed mínimo (sin API key)
+```
+
+---
+
+## 📞 Soporte y contribución
+
+Para dudas técnicas, issues o contribuciones:
+- Revisa la documentación en este directorio
+- Consulta [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) para encontrar la guía específica
+- Abre un issue en el repositorio con detalles del problema

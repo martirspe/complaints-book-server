@@ -34,8 +34,10 @@ const UserTenant = sequelize.define('UserTenant', {
     defaultValue: 'staff'
   }
 }, {
-  tableName: 'user_tenants',
-  timestamps: true
+  timestamps: true,
+  createdAt: 'creation_date',
+  updatedAt: 'update_date',
+  tableName: 'user_tenants'
 });
 
 User.belongsToMany(Tenant, { through: UserTenant, foreignKey: 'user_id', otherKey: 'tenant_id' });

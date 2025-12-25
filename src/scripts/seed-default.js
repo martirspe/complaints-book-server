@@ -75,7 +75,6 @@ async function seedAdminUser(tenant) {
   if (!user) {
     const hashed = await bcrypt.hash(defaultPassword, 10);
     user = await User.create({
-      tenant_id: tenant?.id || null,
       first_name: 'Admin',
       last_name: 'User',
       email: defaultEmail,

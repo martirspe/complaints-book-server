@@ -1,3 +1,4 @@
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -7,11 +8,18 @@ const createUpload = (uploadPath, allowedTypes, errorMessage) => {
   // Storage configuration
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, uploadPath);
+      // Derive tenant slug from route params/header/context; fallback to default
+      const tenantSlug = (req.params?.slug || req.tenant?.slug || req.apiKey?.Tenant?.slug || 'default').toString();
+      const targetPath = path.join(uploadPath, tenantSlug);
+
+      // Ensure directory exists
+      fs.mkdirSync(targetPath, { recursive: true });
+      cb(null, targetPath);
     },
     filename: (req, file, cb) => {
-      const uniqueSuffix = `${uuidv4()}${path.extname(file.originalname)}`;
-      cb(null, uniqueSuffix);
+      const uniqueName = uuidv4();
+      const extension = path.extname(file.originalname).toLowerCase();
+      cb(null, `${uniqueName}${extension}`);
     }
   });
 

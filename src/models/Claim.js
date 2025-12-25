@@ -112,29 +112,29 @@ const Claim = sequelize.define('Claim', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  resolved: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  status: {
-    type: DataTypes.TINYINT,
-    allowNull: false,
-    defaultValue: 1
-  },
-  creation_date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
   assignment_date: {
     type: DataTypes.DATE,
   },
   response_date: {
     type: DataTypes.DATE,
   },
+  resolved: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  creation_date: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
   update_date: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
-  }
+  },
+  status: {
+    type: DataTypes.TINYINT,
+    allowNull: false,
+    defaultValue: 1
+  },
 }, {
   timestamps: true,
   createdAt: 'creation_date',

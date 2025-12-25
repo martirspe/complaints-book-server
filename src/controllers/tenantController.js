@@ -46,12 +46,27 @@ exports.createTenant = async (req, res) => {
       auto_renew: true
     });
 
+    // Auto-assign creator as admin member of the new tenant (if authenticated)
+    let membership = null;
+    if (req.user?.id) {
+      try {
+        membership = await UserTenant.create({
+          user_id: req.user.id,
+          tenant_id: tenant.id,
+          role: 'admin'
+        });
+      } catch (e) {
+        req.log?.warn({ e }, 'No se pudo crear membresía automática para el creador');
+      }
+    }
+
     req.log?.info({ tenant_id: tenant.id, slug }, 'Tenant creado exitosamente');
 
     res.status(201).json({
       message: 'Tenant creado exitosamente',
       tenant,
-      subscription
+      subscription,
+      membership
     });
   } catch (err) {
     req.log?.error({ err }, 'Error creando tenant');
@@ -87,7 +102,7 @@ exports.getTenants = async (req, res) => {
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['created_at', 'DESC']]
+      order: [['creation_date', 'DESC']]
     });
 
     res.json({
@@ -127,8 +142,8 @@ exports.getTenantBySlug = async (req, res) => {
       return res.status(404).json({ message: 'Tenant no encontrado' });
     }
 
-    // Get user count
-    const userCount = await User.count({ where: { tenant_id: tenant.id } });
+    // Get user count via membership table (multi-tenant best practice)
+    const userCount = await UserTenant.count({ where: { tenant_id: tenant.id } });
 
     res.json({
       tenant,
@@ -205,8 +220,8 @@ exports.deleteTenant = async (req, res) => {
       return res.status(404).json({ message: 'Tenant no encontrado' });
     }
 
-    // Check if tenant has active users
-    const userCount = await User.count({ where: { tenant_id: tenant.id } });
+    // Check if tenant has active users (via memberships)
+    const userCount = await UserTenant.count({ where: { tenant_id: tenant.id } });
     if (userCount > 0 && !req.query.force) {
       return res.status(400).json({
         message: `El tenant tiene ${userCount} usuarios activos. Use ?force=true para forzar eliminación.`
@@ -255,7 +270,7 @@ exports.getTenantStats = async (req, res) => {
 
     // Get stats
     const [userCount, claimCount, thisMonthClaims] = await Promise.all([
-      User.count({ where: { tenant_id: tenant.id } }),
+      UserTenant.count({ where: { tenant_id: tenant.id } }),
       Claim.count({ where: { tenant_id: tenant.id } }),
       Claim.count({
         where: {

@@ -35,11 +35,6 @@ const tenantMiddleware = async (req, res, next) => {
       return res.status(403).json({ message: 'Token no autorizado para este tenant' });
     }
 
-    // If user has a tenant_id (single-tenant user), enforce match
-    if (req.user?.tenant_id && req.user.tenant_id !== tenant.id) {
-      return res.status(403).json({ message: 'Usuario no pertenece a este tenant' });
-    }
-
     req.tenant = tenant;
     next();
   } catch (err) {

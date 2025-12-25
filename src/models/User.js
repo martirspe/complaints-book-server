@@ -2,21 +2,12 @@ const { DataTypes } = require('sequelize');
 
 // DB Configuration
 const { sequelize } = require('../config/db');
-const Tenant = require('./Tenant');
 
 const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
-  },
-  tenant_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Tenant,
-      key: 'id'
-    }
   },
   first_name: {
     type: DataTypes.STRING,
@@ -48,8 +39,5 @@ const User = sequelize.define('User', {
   updatedAt: 'update_date',
   tableName: 'users',
 });
-
-Tenant.hasMany(User, { foreignKey: 'tenant_id' });
-User.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
 module.exports = User;

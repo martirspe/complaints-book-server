@@ -23,7 +23,6 @@ exports.createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      tenant_id: tenantId,
       first_name,
       last_name,
       email,
@@ -46,13 +45,14 @@ exports.createUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const tenantId = req.tenant?.id;
-    const users = await User.findAll({ where: { tenant_id: tenantId } });
+    const memberships = await UserTenant.findAll({ where: { tenant_id: tenantId }, attributes: ['user_id'] });
+    const userIds = memberships.map(m => m.user_id);
 
-    // Verify if there are registered users
-    if (users.length === 0) {
+    if (userIds.length === 0) {
       return res.status(404).json({ message: 'No hay usuarios registrados' });
     }
 
+    const users = await User.findAll({ where: { id: userIds } });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener usuarios: ' + error.message });
@@ -63,13 +63,13 @@ exports.getUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const tenantId = req.tenant?.id;
-    const user = await User.findOne({ where: { id: req.params.id, tenant_id: tenantId } });
-
-    // Verify if the user exists
-    if (!user) {
+    const userId = req.params.id;
+    const membership = await UserTenant.findOne({ where: { tenant_id: tenantId, user_id: userId } });
+    if (!membership) {
       return res.status(404).json({ message: "El usuario no fue encontrado" });
     }
 
+    const user = await User.findByPk(userId);
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener el usuario: ' + error.message });
@@ -97,9 +97,14 @@ exports.updateUser = async (req, res) => {
 
     // Update the user with the provided data
     const tenantId = req.tenant?.id;
-    const [updated] = await User.update(req.body, { where: { id, tenant_id: tenantId } });
+    const membership = await UserTenant.findOne({ where: { tenant_id: tenantId, user_id: id } });
+    if (!membership) {
+      return res.status(404).json({ message: 'El usuario no fue encontrado' });
+    }
+
+    const [updated] = await User.update(req.body, { where: { id } });
     if (updated) {
-      const updatedUser = await User.findOne({ where: { id, tenant_id: tenantId } });
+      const updatedUser = await User.findByPk(id);
       return res.status(200).json({ message: 'Usuario actualizado correctamente', data: updatedUser });
     }
 
@@ -114,14 +119,18 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const tenantId = req.tenant?.id;
-    const deleted = await User.destroy({ where: { id, tenant_id: tenantId } });
-
-    // Show a message if the user is deleted
-    if (deleted) {
-      return res.status(200).json({ message: "El usuario fue eliminado correctamente" });
+    const membership = await UserTenant.findOne({ where: { tenant_id: tenantId, user_id: id } });
+    if (!membership) {
+      return res.status(404).json({ message: "El usuario no fue encontrado" });
     }
 
-    throw new Error("User not found");
+    await membership.destroy();
+    const remaining = await UserTenant.count({ where: { user_id: id } });
+    if (remaining === 0) {
+      await User.destroy({ where: { id } });
+    }
+
+    return res.status(200).json({ message: "El usuario fue eliminado correctamente" });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el usuario: ' + error.message });
   }

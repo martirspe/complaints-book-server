@@ -36,7 +36,7 @@ Todo el código relacionado a licencias ha sido **consolidado y modernizado** ba
 | `User.license_type` | ❌ Eliminado |
 | `User.license_expiration_date` | ❌ Eliminado |
 | - | `Subscription` model ✅ (nuevo) |
-| - | `config/plans.js` ✅ (nuevo) |
+| - | `config/planFeatures.js` ✅ (nuevo) |
 
 ### 4. Middlewares
 | Anterior | Nuevo |

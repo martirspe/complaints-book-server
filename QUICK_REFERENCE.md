@@ -1,6 +1,32 @@
-# 📚 Quick Reference - Migración de Licencias Completada
+# 📚 Quick Reference - Complete System Overview (v2.0)
 
-## 🎯 En 30 segundos
+## 🎯 Priority 1-3: Rate Limiting, Auditing, Feature Gating - NEW! ✅
+
+**What's New:**
+- ✅ **Rate Limiting:** 100 req/min per tenant (global, automatic)
+- ✅ **Auditing:** All data changes logged to database
+- ✅ **Feature Gating:** Plans enforced (Free/Pro/Enterprise with quotas)
+
+**Quick Examples:**
+```bash
+# Rate limit: Auto-applied, 429 after 100 req/min
+curl https://api/tenants/test/claims
+
+# Audit: All changes logged
+SELECT * FROM audit_logs WHERE resource_type='Claim' ORDER BY created_at DESC;
+
+# Feature gate: Blocks free users from premium features
+POST /api/tenants/free-tenant/api-keys → 403 "feature not available"
+```
+
+**Documentation:**
+- Full details: [PRIORITY_IMPLEMENTATION.md](PRIORITY_IMPLEMENTATION.md)
+- Completion report: [PRIORITY_COMPLETION_REPORT.md](PRIORITY_COMPLETION_REPORT.md)
+- Verify setup: `node verify-priorities.js`
+
+---
+
+## Legacy: En 30 segundos - Subscriptions Consolidation
 
 **¿Qué pasó?**  
 La lógica antigua de licencias (`licenseController.js`) fue consolidada en el nuevo sistema de suscripciones (`subscriptionController.js`) y los archivos legacy ya fueron eliminados.
@@ -24,7 +50,7 @@ La lógica antigua de licencias (`licenseController.js`) fue consolidada en el n
 |-----------|-----------|---------|
 | Lógica de suscripción | Controller | `src/controllers/subscriptionController.js` |
 | Rutas de suscripción | Routes | `src/routes/subscriptionRoutes.js` |
-| Definición de planes | Config | `src/config/plans.js` |
+| Definición de planes | Config | `src/config/planFeatures.js` |
 | Proteger feature | Middleware | `src/middlewares/featureGateMiddleware.js` |
 | Modelos | Data | `src/models/Subscription.js` |
 | Documentación | Docs | `SUBSCRIPTIONS.md` |
@@ -81,14 +107,14 @@ const { active, plan, features } = await response.json();
 ```javascript
 const requireFeature = require('../middlewares/featureGateMiddleware');
 
-app.post('/api-keys', requireFeature('api_access'), createApiKey);
+app.post('/api-keys', requireFeature('apiAccess'), createApiKey);
 ```
 
 ### 3. Obtener información de plan
 ```javascript
-const { getPlanFeatures } = require('./config/plans');
-const features = getPlanFeatures('pro');
-console.log(features.api_access); // true
+const { getPlanConfig } = require('./config/planFeatures');
+const features = getPlanConfig('pro');
+console.log(features.features.apiAccess); // true
 ```
 
 ### 4. Chequear uso
@@ -125,7 +151,7 @@ R: No. Todas las funcionalidades fueron migradas. Los campos `license_*` de User
 R: Fue eliminado. Usa `/billing/subscription` y `/billing/usage` para obtener información de suscripción.
 
 **P: ¿Cómo agrego un nuevo plan?**  
-R: Edita `src/config/plans.js` y agrega una entrada en el objeto `PLANS`.
+R: Edita `src/config/planFeatures.js` y agrega una entrada en el objeto `PLAN_FEATURES`.
 
 **P: ¿Cómo protejo un endpoint?**  
 R: Usa `requireFeature('feature_name')` middleware.

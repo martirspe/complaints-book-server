@@ -12,6 +12,8 @@ const apiKeyMiddleware = require('./apiKeyMiddleware');
 const requireApiKeyScope = require('./requireApiKeyScope');
 const apiKeyOrJwt = require('./apiKeyOrJwt');
 const requireApiKeyScopeOrJwt = require('./requireApiKeyScopeOrJwt');
+const requireFeature = require('./featureGateMiddleware');
+const limitResourceCreation = require('./resourceLimitMiddleware');
 
 module.exports = {
   authMiddleware,
@@ -27,4 +29,6 @@ module.exports = {
   requireApiKeyScope,
   apiKeyOrJwt,
   requireApiKeyScopeOrJwt,
+  requireFeature,
+  limitResourceCreation,
 };

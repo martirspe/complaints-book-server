@@ -1,10 +1,11 @@
 /**
  * API Key routes: tenant-scoped API key management
  * Protected by admin role - only admins can manage API keys
+ * Priority 3: Feature gating enforces API key limits per plan
  */
 
 const express = require('express');
-const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole, rateLimitTenant, auditMiddleware } = require('../middlewares');
+const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole, rateLimitTenant, auditMiddleware, requireFeature, limitResourceCreation } = require('../middlewares');
 const apiKeyController = require('../controllers/apiKeyController');
 
 const router = express.Router();
@@ -40,13 +41,17 @@ router.get('/tenants/:slug/api-keys/:id/stats',
 );
 
 // Create API key (returns plaintext once)
+// Priority 3: Feature gate - requires pro plan for API access
+// Priority 3: Resource limit - max 5 API keys per tenant
 router.post('/tenants/:slug/api-keys', 
   authMiddleware, 
   tenantMiddleware, 
   membershipMiddleware, 
   requireTenantRole('admin'), 
   rateLimitTenant, 
-  auditMiddleware('apikey:create'), 
+  requireFeature('apiAccess'),
+  limitResourceCreation('maxApiKeys', 'ApiKey'),
+  auditMiddleware('CREATE', 'ApiKey'), 
   apiKeyController.createApiKey
 );
 
@@ -57,7 +62,7 @@ router.put('/tenants/:slug/api-keys/:id',
   membershipMiddleware, 
   requireTenantRole('admin'), 
   rateLimitTenant, 
-  auditMiddleware('apikey:update'), 
+  auditMiddleware('UPDATE', 'ApiKey'), 
   apiKeyController.updateApiKey
 );
 
@@ -68,7 +73,7 @@ router.delete('/tenants/:slug/api-keys/:id',
   membershipMiddleware, 
   requireTenantRole('admin'), 
   rateLimitTenant, 
-  auditMiddleware('apikey:revoke'), 
+  auditMiddleware('UPDATE', 'ApiKey'), 
   apiKeyController.revokeApiKey
 );
 
@@ -79,7 +84,7 @@ router.delete('/tenants/:slug/api-keys/:id/permanent',
   membershipMiddleware, 
   requireTenantRole('admin'), 
   rateLimitTenant, 
-  auditMiddleware('apikey:delete'), 
+  auditMiddleware('DELETE', 'ApiKey'), 
   apiKeyController.deleteApiKey
 );
 
@@ -90,7 +95,7 @@ router.post('/tenants/:slug/api-keys/:id/activate',
   membershipMiddleware, 
   requireTenantRole('admin'), 
   rateLimitTenant, 
-  auditMiddleware('apikey:activate'), 
+  auditMiddleware('UPDATE', 'ApiKey'), 
   apiKeyController.activateApiKey
 );
 

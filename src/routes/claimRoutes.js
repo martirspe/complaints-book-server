@@ -5,7 +5,7 @@ const { uploadClaim, uploadResolveClaim } = require('../middlewares/uploadMiddle
 // Optional reCAPTCHA middleware
 const recaptchaMiddleware = require('../middlewares/recaptchaMiddleware');
 const { validateClaimCreate, validateClaimUpdate, validateClaimAssign, validateClaimResolve } = require('../middlewares/validationMiddleware');
-const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole, rateLimitTenant, auditMiddleware, apiKeyOrJwt, requireApiKeyScopeOrJwt } = require('../middlewares');
+const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole, rateLimitTenant, auditMiddleware, apiKeyOrJwt, requireApiKeyScopeOrJwt, limitResourceCreation } = require('../middlewares');
 
 // Claims controller
 const {
@@ -21,7 +21,19 @@ const {
 const router = express.Router();
 
 // Create a new claim (tenant + auth protected). Multipart first to populate req.body
-router.post('/tenants/:slug/claims', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:write'), rateLimitTenant, auditMiddleware('claim:create'), uploadClaim, validateClaimCreate, recaptchaMiddleware, createClaim);
+// Priority 2: Audit middleware logs claim creation
+// Priority 3: Resource limit checks free tier quota (max 10 claims)
+router.post('/tenants/:slug/claims', 
+  apiKeyOrJwt, 
+  requireApiKeyScopeOrJwt('claims:write'), 
+  rateLimitTenant, 
+  limitResourceCreation('maxClaims', 'Claim'),
+  auditMiddleware('CREATE', 'Claim'), 
+  uploadClaim, 
+  validateClaimCreate, 
+  recaptchaMiddleware, 
+  createClaim
+);
 
 // Get all claims for tenant
 router.get('/tenants/:slug/claims', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:read'), rateLimitTenant, getClaims);
@@ -30,15 +42,52 @@ router.get('/tenants/:slug/claims', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims
 router.get('/tenants/:slug/claims/:id', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:read'), rateLimitTenant, getClaimById);
 
 // Update a claim
-router.put('/tenants/:slug/claims/:id', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:write'), rateLimitTenant, requireTenantRole('admin', 'staff'), auditMiddleware('claim:update'), validateClaimUpdate, uploadClaim, updateClaim);
+// Priority 2: Audit middleware logs claim modifications
+router.put('/tenants/:slug/claims/:id', 
+  apiKeyOrJwt, 
+  requireApiKeyScopeOrJwt('claims:write'), 
+  rateLimitTenant, 
+  requireTenantRole('admin', 'staff'), 
+  auditMiddleware('UPDATE', 'Claim'), 
+  validateClaimUpdate, 
+  uploadClaim, 
+  updateClaim
+);
 
 // Delete a claim
-router.delete('/tenants/:slug/claims/:id', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:write'), rateLimitTenant, requireTenantRole('admin'), auditMiddleware('claim:delete'), deleteClaim);
+// Priority 2: Audit middleware logs claim deletion
+router.delete('/tenants/:slug/claims/:id', 
+  apiKeyOrJwt, 
+  requireApiKeyScopeOrJwt('claims:write'), 
+  rateLimitTenant, 
+  requireTenantRole('admin'), 
+  auditMiddleware('DELETE', 'Claim'), 
+  deleteClaim
+);
 
 // Assign a claim
-router.patch('/tenants/:slug/claims/:id/assign', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:write'), rateLimitTenant, requireTenantRole('admin', 'staff'), auditMiddleware('claim:assign'), validateClaimAssign, assignClaim);
+// Priority 2: Audit middleware logs claim assignment
+router.patch('/tenants/:slug/claims/:id/assign', 
+  apiKeyOrJwt, 
+  requireApiKeyScopeOrJwt('claims:write'), 
+  rateLimitTenant, 
+  requireTenantRole('admin', 'staff'), 
+  auditMiddleware('UPDATE', 'Claim'), 
+  validateClaimAssign, 
+  assignClaim
+);
 
 // Resolve a claim (multipart parsing first to populate req.body)
-router.patch('/tenants/:slug/claims/:id/resolve', apiKeyOrJwt, requireApiKeyScopeOrJwt('claims:write'), rateLimitTenant, requireTenantRole('admin', 'staff'), auditMiddleware('claim:resolve'), uploadResolveClaim, validateClaimResolve, resolveClaim);
+// Priority 2: Audit middleware logs claim resolution
+router.patch('/tenants/:slug/claims/:id/resolve', 
+  apiKeyOrJwt, 
+  requireApiKeyScopeOrJwt('claims:write'), 
+  rateLimitTenant, 
+  requireTenantRole('admin', 'staff'), 
+  auditMiddleware('UPDATE', 'Claim'), 
+  uploadResolveClaim, 
+  validateClaimResolve, 
+  resolveClaim
+);
 
 module.exports = router;

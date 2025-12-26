@@ -360,7 +360,7 @@ curl -X POST http://localhost:3000/api/integrations/default/claims \
 
 **Rate limits:** 30-1000 req/min según plan
 
-Ver [src/config/plans.js](src/config/plans.js) para detalles completos.
+Ver [src/config/planFeatures.js](src/config/planFeatures.js) para detalles completos.
 
 ---
 

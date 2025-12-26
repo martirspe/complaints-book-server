@@ -11,7 +11,7 @@
  */
 
 const { Subscription, Tenant } = require('../models');
-const { PLANS } = require('../config/plans');
+const { PLAN_FEATURES, getPlanConfig, getAllPlans } = require('../config/planFeatures');
 
 // Get current subscription for a tenant
 exports.getSubscription = async (req, res) => {
@@ -25,13 +25,13 @@ exports.getSubscription = async (req, res) => {
       return res.status(200).json({
         message: 'No hay suscripción activa (plan free por defecto)',
         plan_name: 'free',
-        plan_details: PLANS.free
+        plan_details: getPlanConfig('free')
       });
     }
 
     res.json({
       subscription,
-      plan_details: PLANS[subscription.plan_name]
+      plan_details: getPlanConfig(subscription.plan_name)
     });
   } catch (err) {
     req.log?.error({ err }, 'Error obteniendo suscripción');
@@ -41,10 +41,13 @@ exports.getSubscription = async (req, res) => {
 
 // List all available plans
 exports.listPlans = (req, res) => {
-  const plans = Object.entries(PLANS).map(([key, plan]) => ({
-    name: key,
-    ...plan
-  }));
+  const plans = getAllPlans().map((plan, index) => {
+    const keys = Object.keys(PLAN_FEATURES);
+    return {
+      id: keys[index],
+      ...plan
+    };
+  });
   res.json(plans);
 };
 
@@ -54,7 +57,7 @@ exports.upgradePlan = async (req, res) => {
   try {
     const { plan_name, payment_provider_id, billing_cycle_start, billing_cycle_end } = req.body;
 
-    if (!plan_name || !PLANS[plan_name]) {
+    if (!plan_name || !PLAN_FEATURES[plan_name]) {
       return res.status(400).json({ message: 'Plan inválido' });
     }
 
@@ -83,7 +86,7 @@ exports.upgradePlan = async (req, res) => {
     res.json({
       message: `Plan actualizado a ${plan_name}`,
       subscription,
-      plan_details: PLANS[plan_name]
+      plan_details: getPlanConfig(plan_name)
     });
   } catch (err) {
     req.log?.error({ err }, 'Error upgradando plan');
@@ -142,19 +145,19 @@ exports.getUsage = async (req, res) => {
       where: { tenant_id: req.tenant.id }
     });
 
-    const planFeatures = require('../config/plans').getPlanFeatures(subscription?.plan_name);
+      const planConfig = getPlanConfig(subscription?.plan_name);
 
     res.json({
       plan_name: subscription?.plan_name || 'free',
       usage: {
         claims_this_month: claimCount,
-        claims_limit: planFeatures.max_claims_per_month,
+          claims_limit: planConfig.maxClaims === null ? 'Unlimited' : planConfig.maxClaims,
         users: userCount,
-        users_limit: planFeatures.max_users
+          users_limit: planConfig.maxUsers === null ? 'Unlimited' : planConfig.maxUsers
       },
       warnings: {
-        claims_approaching_limit: claimCount >= (planFeatures.max_claims_per_month * 0.8),
-        users_approaching_limit: userCount >= (planFeatures.max_users * 0.8)
+        claims_approaching_limit: typeof planConfig.maxClaims === 'number' && claimCount >= (planConfig.maxClaims * 0.8),
+        users_approaching_limit: typeof planConfig.maxUsers === 'number' && userCount >= (planConfig.maxUsers * 0.8)
       }
     });
   } catch (err) {

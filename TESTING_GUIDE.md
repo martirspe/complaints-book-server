@@ -106,7 +106,7 @@ curl -X POST http://localhost:3000/api/tenants/default/api-keys \
 
 Expected Response (403 Forbidden):
 {
-  "message": "Feature \"api_access\" no disponible en el plan free.",
+  "message": "Feature \"apiAccess\" no disponible en el plan free.",
   "upgrade_url": "/api/billing/upgrade"
 }
 
@@ -180,7 +180,7 @@ describe('Subscription Controller', () => {
       .send({ label: 'test' })
       .expect(403);
     
-    expect(res.body.message).toContain('api_access');
+    expect(res.body.message).toContain('apiAccess');
   });
 
   it('should upgrade plan to pro', async () => {

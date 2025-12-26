@@ -90,7 +90,7 @@ src/routes/licenseRoutes.js             ← Eliminado
 - ✅ Soporte para múltiples tenants independientes
 
 ### 2. **Feature Gates**
-- ✅ `requireFeature('api_access')` protege endpoints
+- ✅ `requireFeature('apiAccess')` protege endpoints
 - ✅ Acceso dinámico basado en plan
 
 ### 3. **Metering**
@@ -107,7 +107,7 @@ src/routes/licenseRoutes.js             ← Eliminado
 
 ### 6. **Código Limpio**
 - ✅ Una única fuente de verdad para planes
-- ✅ Métodos reutilizables en `config/plans.js`
+- ✅ Métodos reutilizables en `config/planFeatures.js`
 - ✅ Zero code duplication
 
 ---
@@ -118,7 +118,7 @@ src/routes/licenseRoutes.js             ← Eliminado
 2. **MIGRATION_SUMMARY.md** - Resumen técnico de cambios
 3. **DEPRECATION_NOTES.md** - Referencia de archivos removidos
 4. **CLEANUP_GUIDE.md** - Instrucciones para limpiar repo
-5. **plans.js** - Definición de planes centralizada
+5. **planFeatures.js** - Definición de planes centralizada
 
 ---
 
@@ -130,7 +130,7 @@ src/routes/licenseRoutes.js             ← Eliminado
 - [x] `subscriptionRoutes` tiene todos los endpoints
 - [x] Ruta legacy `/license/:userId` sigue funcionando
 - [x] `featureGateMiddleware` implementado
-- [x] `config/plans.js` con definiciones completas
+- [x] `config/planFeatures.js` con definiciones completas
 - [x] `Subscription` model creado con asociaciones
 - [x] Cero errores de compilación
 - [x] Cero referencias rotas

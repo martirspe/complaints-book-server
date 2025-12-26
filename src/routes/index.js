@@ -14,7 +14,16 @@ const apiKeyRoutes = require('./apiKeyRoutes');
 const integrationRoutes = require('./integrationRoutes');
 const subscriptionRoutes = require('./subscriptionRoutes');
 
+// Middleware imports for Priority features
+const { rateLimitTenant } = require('../middlewares');
+
 const router = express.Router();
+
+// ===== GLOBAL RATE LIMITING (Priority 1) =====
+// Apply rate limiting to all API endpoints: 100 requests/min per tenant
+router.use('/api', rateLimitTenant);
+
+// ===== ROUTE MOUNTING =====
 
 // User API routes
 router.use('/api', userRoutes);

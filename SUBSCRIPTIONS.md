@@ -7,11 +7,11 @@
 El sistema multi-tenant ahora soporta **planes de suscripción por tenant**, listo para integrar pagos (Stripe, PayPal, etc.).
 
 ### Modelos
-- **`Subscription`**: tabla que vincula cada tenant a un plan (free/basic/pro/enterprise) con estado, período de facturación y proveedor de pagos.
-- **`plans.js`**: definición centralizada de features, límites y precios por plan.
+- **`Subscription`**: tabla que vincula cada tenant a un plan (free/starter/pro/enterprise) con estado, período de facturación y proveedor de pagos.
+- **`planFeatures.js`**: definición centralizada de features, límites y precios por plan.
 
 ### Middlewares & Controllers
-- **`featureGateMiddleware.js`**: protege endpoints basado en plan (`requireFeature('api_access')`).
+- **`featureGateMiddleware.js`**: protege endpoints basado en plan (`requireFeature('apiAccess')`).
 - **`subscriptionController.js`**: GET/POST subscripciones, upgrade, cancelación, uso/métricas.
 
 ### Rutas
@@ -43,7 +43,7 @@ El sistema multi-tenant ahora soporta **planes de suscripción por tenant**, lis
 
 ## Planes disponibles
 
-Definidos en `config/plans.js`:
+Definidos en `config/planFeatures.js`:
 
 | Plan       | Usuarios | Reclamos/mes | Storage | API | Email Support | Rate Limit | Precio  |
 |-----------|----------|--------------|---------|-----|----------------|-----------|---------|
@@ -52,7 +52,7 @@ Definidos en `config/plans.js`:
 | **pro**       | 20       | 10,000       | 100 GB  | ✅  | ✅  | 200 req/min | $149/mes|
 | **enterprise**| ∞        | ∞            | ∞       | ✅  | ✅  | 1000 req/min| Custom  |
 
-Personaliza en `config/plans.js`.
+Personaliza en `config/planFeatures.js`.
 
 ---
 
@@ -65,7 +65,7 @@ const tenantMiddleware = require('../middlewares/tenantMiddleware');
 
 app.post('/api/tenants/:slug/api-keys', 
   tenantMiddleware, 
-  requireFeature('api_access'), 
+  requireFeature('apiAccess'), 
   apiKeyController.create
 );
 ```
@@ -73,7 +73,7 @@ app.post('/api/tenants/:slug/api-keys',
 Si el tenant está en plan **free** o **basic**, retorna:
 ```json
 {
-  "message": "Feature \"api_access\" no disponible en el plan free.",
+  "message": "Feature \"apiAccess\" no disponible en el plan free.",
   "upgrade_url": "/api/billing/upgrade"
 }
 ```
@@ -139,17 +139,17 @@ billing_cycle_end: '2025-12-31',
 
 ---
 
-## Métodos útiles en `config/plans.js`
+## Métodos útiles en `config/planFeatures.js`
 
 ```javascript
 // Obtener features de un plan
-getPlanFeatures('pro') // → { max_users: 20, api_access: true, ... }
+getPlanConfig('pro') // → { maxUsers: 20, features: { apiAccess: true, ... }, ... }
 
 // Verificar si tenant tiene feature
-hasFeature(subscription, 'api_access') // → true/false
+hasFeature(subscription, 'apiAccess') // → true/false
 
 // Obtener rate limit del plan
-getRateLimit(subscription) // → 200
+getPlanConfig(subscription.plan_name).apiRateLimit // → 200
 ```
 
 ---
@@ -203,4 +203,4 @@ await Subscription.create({
 
 ---
 
-Para preguntas o cambios en planes, edita `src/config/plans.js` y reinicia el servidor.
+Para preguntas o cambios en planes, edita `src/config/planFeatures.js` y reinicia el servidor.

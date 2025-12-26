@@ -44,9 +44,9 @@ grep -r "licenseRoutes" src/ --include="*.js"
 ### 5. Middlewares y Config
 ```
 ✅ featureGateMiddleware.js creado
-✅ config/plans.js con 4 planes (free, basic, pro, enterprise)
+✅ config/planFeatures.js con 4 planes (free, starter, pro, enterprise)
 ✅ Plans con features, límites y precios definidos
-✅ Métodos: getPlanFeatures(), hasFeature(), getRateLimit()
+✅ Métodos: getPlanConfig(), hasFeature(), getPlanPrice()
 ```
 
 ### 6. Rutas
@@ -128,7 +128,7 @@ grep -r "licenseRoutes" src/ --include="*.js"
 - ✅ `subscriptionController.js` (6 métodos)
 - ✅ `subscriptionRoutes.js` (6 endpoints)
 - ✅ `featureGateMiddleware.js`
-- ✅ `config/plans.js`
+- ✅ `config/planFeatures.js`
 - ✅ `SUBSCRIPTIONS.md` (documentación)
 - ✅ `DEPRECATION_NOTES.md`
 - ✅ `MIGRATION_SUMMARY.md`

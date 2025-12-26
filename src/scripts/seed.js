@@ -1,6 +1,7 @@
 /* Development/Testing seed: includes superadmin, API keys, and all baseline data. Use for testing and development. */
 const { connectDB } = require('../config/db');
 const { DocumentType, ConsumptionType, ClaimType, Currency, User, Tenant, UserTenant, ApiKey, Subscription } = require('../models');
+const { getPlanConfig } = require('../config/planFeatures');
 const defaultTenant = require('../config/defaultTenant');
 const bcrypt = require('bcrypt');
 const { generateApiKey } = require('../utils/apiKeyUtils');
@@ -113,6 +114,14 @@ async function seedAdminUser(tenant) {
 
 async function seedApiKey(tenant) {
   if (!tenant) return;
+  // Respect plan limits: only create API key if plan allows
+  const subscription = await Subscription.findOne({ where: { tenant_id: tenant.id } });
+  const planName = subscription?.plan_name || 'free';
+  const planConfig = getPlanConfig(planName);
+  if (typeof planConfig.maxApiKeys === 'number' && planConfig.maxApiKeys < 1) {
+    console.log(`Skipping API key seed for tenant ${tenant.slug} (plan ${planName} allows 0 keys).`);
+    return;
+  }
   try {
     const existing = await ApiKey.findOne({ where: { tenant_id: tenant.id } });
     if (existing) {
@@ -143,18 +152,30 @@ async function seedSubscription(tenant) {
   if (!tenant) return;
   const existing = await Subscription.findOne({ where: { tenant_id: tenant.id } });
   if (existing) return;
+  
+  // Allow plan selection via environment variable
+  const { PLAN_FEATURES } = require('../config/planFeatures');
+  const availablePlans = Object.keys(PLAN_FEATURES);
+  const defaultPlan = process.env.DEFAULT_TENANT_PLAN_ON_SEED || 'free';
+  
+  if (!availablePlans.includes(defaultPlan)) {
+    console.warn(`Plan "${defaultPlan}" not found. Available plans: ${availablePlans.join(', ')}. Using "free".`);
+  }
+  
+  const planToUse = availablePlans.includes(defaultPlan) ? defaultPlan : 'free';
+  
   const now = new Date();
   const endDate = new Date();
   endDate.setFullYear(endDate.getFullYear() + 1); // 1 year trial
   await Subscription.create({
     tenant_id: tenant.id,
-    plan_name: 'free', // Start with free plan
+    plan_name: planToUse,
     status: 'active',
     billing_cycle_start: now,
     billing_cycle_end: endDate,
     auto_renew: true
   });
-  console.log(`Seeded: subscription for tenant ${tenant.slug} (plan: free)`);
+  console.log(`Seeded: subscription for tenant ${tenant.slug} (plan: ${planToUse})`);
 }
 
 (async () => {
@@ -167,8 +188,8 @@ async function seedSubscription(tenant) {
     const tenant = await seedDefaultTenant();
     await seedSuperadminUser();
     await seedAdminUser(tenant);
-    await seedApiKey(tenant);
     await seedSubscription(tenant);
+    await seedApiKey(tenant);
     console.log('Seeding completed.');
     process.exit(0);
   } catch (err) {

@@ -44,7 +44,7 @@ Se ha consolidado toda la lógica de licencias legacy en un nuevo sistema SaaS d
 + subscriptionRoutes.js (34 líneas, 6 endpoints)
 + Subscription.js (modelo nuevo)
 + featureGateMiddleware.js (middleware nuevo)
-+ config/plans.js (configuración nueva)
++ config/planFeatures.js (configuración nueva)
 ```
 
 ### Endpoints
@@ -172,7 +172,7 @@ Se ha consolidado toda la lógica de licencias legacy en un nuevo sistema SaaS d
 - [x] Consolidar licenseRoutes → subscriptionRoutes (archivo eliminado)
 - [x] Crear Subscription model
 - [x] Crear featureGateMiddleware
-- [x] Crear config/plans.js
+- [x] Crear config/planFeatures.js
 - [x] Actualizar User model (remover license_*)
 - [x] Actualizar seeds (seed.js, seed-default.js)
 - [x] Actualizar routes/index.js

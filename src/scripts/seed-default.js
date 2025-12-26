@@ -123,7 +123,7 @@ async function seedSubscription(tenant) {
   endDate.setFullYear(endDate.getFullYear() + 1); // 1 year trial
   await Subscription.create({
     tenant_id: tenant.id,
-    plan_name: 'free', // Start with free plan
+    plan_name: 'free', // Production: always start with free plan
     status: 'active',
     billing_cycle_start: now,
     billing_cycle_end: endDate,

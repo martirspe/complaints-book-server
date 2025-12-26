@@ -11,6 +11,7 @@ const Tenant = require('./Tenant');
 const UserTenant = require('./UserTenant');
 const ApiKey = require('./ApiKey');
 const Subscription = require('./Subscription');
+const AuditLog = require('./AuditLog');
 
 module.exports = {
   User,
@@ -24,5 +25,6 @@ module.exports = {
   Tenant,
   UserTenant,
   ApiKey,
-  Subscription
+  Subscription,
+  AuditLog
 };

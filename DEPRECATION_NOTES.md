@@ -29,9 +29,9 @@
  *    - Tracks billing cycles, payment providers, auto-renewal
  *    - Supports metadata for custom features per plan
  * 
- * 3. New config: config/plans.js
+ * 3. New config: config/planFeatures.js
  *    - Centralized plan definitions with features and limits
- *    - Methods: getPlanFeatures(), hasFeature(), getRateLimit()
+ *    - Methods: getPlanConfig(), hasFeature(), getPlanPrice()
  * 
  * 4. Consolidated endpoints in subscriptionRoutes.js:
  *    - GET /api/tenants/:slug/billing/plans

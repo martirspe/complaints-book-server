@@ -6,7 +6,7 @@
  */
 
 const { Tenant, Subscription, User, UserTenant } = require('../models');
-const { PLANS } = require('../config/plans');
+const { getPlanConfig } = require('../config/planFeatures');
 
 /**
  * Create a new tenant
@@ -147,7 +147,7 @@ exports.getTenantBySlug = async (req, res) => {
 
     res.json({
       tenant,
-      plan_details: PLANS[tenant.Subscription?.plan_name || 'free'],
+      plan_details: getPlanConfig(tenant.Subscription?.plan_name || 'free'),
       user_count: userCount
     });
   } catch (err) {
@@ -283,7 +283,7 @@ exports.getTenantStats = async (req, res) => {
     ]);
 
     const subscription = await Subscription.findOne({ where: { tenant_id: tenant.id } });
-    const planFeatures = PLANS[subscription?.plan_name || 'free'];
+    const planConfig = getPlanConfig(subscription?.plan_name || 'free');
 
     res.json({
       tenant: {
@@ -298,14 +298,14 @@ exports.getTenantStats = async (req, res) => {
       },
       usage: {
         users: userCount,
-        users_limit: planFeatures.max_users,
+        users_limit: planConfig.maxUsers === null ? 'Unlimited' : planConfig.maxUsers,
         claims_total: claimCount,
         claims_this_month: thisMonthClaims,
-        claims_limit: planFeatures.max_claims_per_month
+        claims_limit: planConfig.maxClaims === null ? 'Unlimited' : planConfig.maxClaims
       },
       warnings: {
-        users_approaching_limit: userCount >= (planFeatures.max_users * 0.8),
-        claims_approaching_limit: thisMonthClaims >= (planFeatures.max_claims_per_month * 0.8)
+        users_approaching_limit: typeof planConfig.maxUsers === 'number' && userCount >= (planConfig.maxUsers * 0.8),
+        claims_approaching_limit: typeof planConfig.maxClaims === 'number' && thisMonthClaims >= (planConfig.maxClaims * 0.8)
       }
     });
   } catch (err) {

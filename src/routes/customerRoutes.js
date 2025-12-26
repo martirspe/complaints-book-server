@@ -16,23 +16,24 @@ const { apiKeyOrJwt } = require('../middlewares');
 
 // All customer routes require authentication and tenant context
 // Public-facing (can be accessed via API key or JWT)
+// Routes are scoped by tenant slug in URL
 
 // Create a new customer
-router.post('/customers', apiKeyOrJwt, validateCustomerCreate, createCustomer);
+router.post('/tenants/:slug/customers', apiKeyOrJwt, validateCustomerCreate, createCustomer);
 
 // Get all customers (scoped to tenant)
-router.get('/customers', apiKeyOrJwt, getCustomers);
+router.get('/tenants/:slug/customers', apiKeyOrJwt, getCustomers);
 
 // Get a customer by document number (scoped to tenant)
-router.get('/customers/document/:document_number', apiKeyOrJwt, getCustomerByDocument);
+router.get('/tenants/:slug/customers/document/:document_number', apiKeyOrJwt, getCustomerByDocument);
 
 // Get a customer by ID (scoped to tenant)
-router.get('/customers/:id', apiKeyOrJwt, getCustomerById);
+router.get('/tenants/:slug/customers/:id', apiKeyOrJwt, getCustomerById);
 
 // Update a customer
-router.put('/customers/:id', apiKeyOrJwt, validateCustomerUpdate, updateCustomer);
+router.put('/tenants/:slug/customers/:id', apiKeyOrJwt, validateCustomerUpdate, updateCustomer);
 
 // Delete a customer
-router.delete('/customers/:id', apiKeyOrJwt, deleteCustomer);
+router.delete('/tenants/:slug/customers/:id', apiKeyOrJwt, deleteCustomer);
 
 module.exports = router;

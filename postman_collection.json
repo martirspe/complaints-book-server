@@ -63,13 +63,6 @@
                 "method": "GET",
                 "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
               }
-            },
-            {
-              "name": "Get Tenant Logo",
-              "request": {
-                "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/logo", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","logo"] }
-              }
             }
           ]
         },
@@ -282,8 +275,8 @@
               {"key": "Content-Type", "value": "application/json"},
               {"key": "x-tenant", "value": "{{tenantSlug}}"}
             ],
-            "body": {"mode": "raw", "raw": "{\n  \"document_type_id\": {{documentTypeId}},\n  \"document_number\": \"12345678\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"email\": \"juan.perez@example.com\",\n  \"phone\": \"999999999\",\n  \"address\": \"Av. Siempre Viva 742, Springfield, Lima, Peru\",\n  \"is_younger\": false\n}"}, 
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers"] } 
+            "body": {"mode": "raw", "raw": "{\n  \"document_type_id\": {{documentTypeId}},\n  \"document_number\": \"12345678\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"email\": \"juan.perez@example.com\",\n  \"phone\": \"999999999\",\n  \"address\": \"Av. Siempre Viva 742, Springfield, Lima, Peru\",\n  \"is_younger\": false\n}"},
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers"] }
           } 
         },
         { 

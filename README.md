@@ -176,7 +176,20 @@ ADMIN_EMAIL=admin@miempresa.com ADMIN_PASSWORD=mipassword npm run seed
 
 ---
 
-## 🔐 Autenticación
+## 🔐 Autenticación y Seguridad
+
+### Documentación de Seguridad
+
+📖 **[Arquitectura de Seguridad Multi-Tenant](./SECURITY_ARCHITECTURE.md)** - Guía completa de implementación de seguridad
+
+Esta aplicación implementa un **sistema de seguridad multi-tenant completo** con:
+- ✅ Aislamiento de datos por tenant (row-level security)
+- ✅ Autenticación dual (JWT + API Keys)
+- ✅ Roles globales (superadmin) y por tenant (admin/staff)
+- ✅ Validación de membresía en cada request
+- ✅ Uploads namespaced por tenant
+- ✅ Rate limiting por tenant
+- ✅ Protección contra IDOR y cross-tenant data access
 
 ### JWT (usuarios web)
 ```bash
@@ -436,6 +449,10 @@ Todas las operaciones sensibles se registran con:
 ---
 
 ## 📚 Documentación adicional
+
+### Seguridad y Arquitectura
+- **[SECURITY_ARCHITECTURE.md](SECURITY_ARCHITECTURE.md)** — Arquitectura de seguridad multi-tenant completa
+- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** — Guía de migración para tenant_id en customers/tutors
 
 ### Guías técnicas
 - **[SUBSCRIPTIONS.md](SUBSCRIPTIONS.md)** — Sistema de suscripciones SaaS completo

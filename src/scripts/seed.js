@@ -1,4 +1,4 @@
-/* Dev seed script: inserts baseline data if tables are empty */
+/* Development/Testing seed: includes superadmin, API keys, and all baseline data. Use for testing and development. */
 const { connectDB } = require('../config/db');
 const { DocumentType, ConsumptionType, ClaimType, Currency, User, Tenant, UserTenant, ApiKey, Subscription } = require('../models');
 const defaultTenant = require('../config/defaultTenant');
@@ -69,6 +69,24 @@ async function seedDefaultTenant() {
   return tenant;
 }
 
+async function seedSuperadminUser() {
+  const defaultEmail = process.env.SUPERADMIN_EMAIL || 'superadmin@example.com';
+  const defaultPassword = process.env.SUPERADMIN_PASSWORD || 'superadmin123';
+  let user = await User.findOne({ where: { email: defaultEmail } });
+  if (!user) {
+    const hashed = await bcrypt.hash(defaultPassword, 10);
+    user = await User.create({
+      first_name: 'Superadmin',
+      last_name: 'User',
+      email: defaultEmail,
+      password: hashed,
+      role: 'superadmin',
+    });
+    console.log(`Seeded: superadmin user (${defaultEmail})`);
+  }
+  return user;
+}
+
 async function seedAdminUser(tenant) {
   const defaultEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
   const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
@@ -95,11 +113,30 @@ async function seedAdminUser(tenant) {
 
 async function seedApiKey(tenant) {
   if (!tenant) return;
-  const existing = await ApiKey.findOne({ where: { tenant_id: tenant.id } });
-  if (existing) return;
+  try {
+    const existing = await ApiKey.findOne({ where: { tenant_id: tenant.id } });
+    if (existing) {
+      console.log(`✓ API key for tenant ${tenant.slug} already exists (${existing.label}), skipping.`);
+      return;
+    }
+  } catch (err) {
+    console.error('Error checking for existing API key:', err.message);
+    return;
+  }
+  
   const { key, key_hash } = generateApiKey();
-  await ApiKey.create({ tenant_id: tenant.id, label: 'default-seed', scopes: 'claims:read,claims:write', key_hash, active: true });
-  console.log(`Seeded: api key for tenant ${tenant.slug} (save this key): ${key}`);
+  try {
+    await ApiKey.create({ 
+      tenant_id: tenant.id, 
+      label: 'default-seed', 
+      scopes: 'claims:read,claims:write', 
+      key_hash, 
+      active: true 
+    });
+    console.log(`Seeded: api key for tenant ${tenant.slug} (save this key): ${key}`);
+  } catch (err) {
+    console.error(`Failed to create API key for tenant ${tenant.slug}:`, err.message);
+  }
 }
 
 async function seedSubscription(tenant) {
@@ -128,6 +165,7 @@ async function seedSubscription(tenant) {
     await seedClaimTypes();
     await seedCurrencies();
     const tenant = await seedDefaultTenant();
+    await seedSuperadminUser();
     await seedAdminUser(tenant);
     await seedApiKey(tenant);
     await seedSubscription(tenant);

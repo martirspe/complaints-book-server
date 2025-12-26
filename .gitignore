@@ -1,24 +1,46 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# Built application files
-/dist
-/build
-/logs
-/uploads
+# Node dependencies
+node_modules/
+package-lock.json
+yarn.lock
 
-# Compiled output
-/server
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
+# Build and runtime output
+dist/
+build/
+logs/
+uploads/
+tmp/
+out-tsc/
+bazel-out/
+server/
 server/node_modules
-npm-debug.log
-yarn-error.log
+
+# Logs and debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+.istanbul/
 
 # IDEs and editors
+.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .idea/
 .project
 .classpath
@@ -27,18 +49,11 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 
-# Visual Studio Code
-.vscode
-.angular
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# IDE history
 .history/*
+.angular/cache/
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -46,7 +61,32 @@ yarn-error.log
 testem.log
 /typings
 
+# Database and backups
+*.sql.bak
+*.sql.backup
+backup_*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
 # System files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-.env
+
+# OS-specific
+.AppleDouble
+.LSOverride
+.vscode-test
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~

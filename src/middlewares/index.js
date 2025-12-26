@@ -5,6 +5,7 @@ const cacheMiddleware = require('./cacheMiddleware');
 const tenantMiddleware = require('./tenantMiddleware');
 const membershipMiddleware = require('./membershipMiddleware');
 const requireTenantRole = require('./requireTenantRole');
+const superadminMiddleware = require('./superadminMiddleware');
 const rateLimitTenant = require('./rateLimitTenant');
 const auditMiddleware = require('./auditMiddleware');
 const apiKeyMiddleware = require('./apiKeyMiddleware');
@@ -19,6 +20,7 @@ module.exports = {
   tenantMiddleware,
   membershipMiddleware,
   requireTenantRole,
+  superadminMiddleware,
   rateLimitTenant,
   auditMiddleware,
   apiKeyMiddleware,

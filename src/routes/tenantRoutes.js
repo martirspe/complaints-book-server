@@ -6,7 +6,7 @@
 const express = require('express');
 const { Tenant } = require('../models');
 const tenantController = require('../controllers/tenantController');
-const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole } = require('../middlewares');
+const { authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole, superadminMiddleware } = require('../middlewares');
 const { uploadBranding } = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
@@ -48,6 +48,9 @@ const sendTenantProfile = async (req, res, slug) => {
   }
 };
 
+// ============== Public Tenant Branding Endpoints ==============
+// These endpoints are public (no auth) for displaying tenant branding
+
 // GET /api/tenants/:slug (tenant info)
 router.get('/tenants/:slug', async (req, res) => {
   const { slug } = req.params;
@@ -60,16 +63,18 @@ router.get('/tenants/default', async (req, res) => {
   return sendTenantProfile(req, res, slug);
 });
 
-// ============== CRUD Operations (Protected) ==============
+// ============== Superadmin Routes (Platform Management) ==============
 
-// Create a new tenant
-router.post('/tenants', authMiddleware, tenantController.createTenant);
+// Create a new tenant (superadmin only)
+router.post('/tenants', authMiddleware, superadminMiddleware, tenantController.createTenant);
 
-// Get all tenants (with pagination and search)
-router.get('/tenants', authMiddleware, tenantController.getTenants);
+// Get all tenants with pagination and search (superadmin only)
+router.get('/tenants', authMiddleware, superadminMiddleware, tenantController.getTenants);
 
-// Get tenant details with subscription info
-router.get('/tenants/:slug/details', authMiddleware, tenantController.getTenantBySlug);
+// ============== Tenant Admin Routes (Self-Management) ==============
+
+// Get tenant details with subscription info (tenant admin only)
+router.get('/tenants/:slug/details', authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole('admin'), tenantController.getTenantBySlug);
 
 // Update tenant (branding + contact), admin only, allows multipart uploads
 router.put(
@@ -82,10 +87,10 @@ router.put(
   tenantController.updateTenant
 );
 
-// Delete tenant
-router.delete('/tenants/:slug', authMiddleware, tenantController.deleteTenant);
+// Delete tenant (superadmin only for safety)
+router.delete('/tenants/:slug', authMiddleware, superadminMiddleware, tenantController.deleteTenant);
 
-// Get tenant statistics
-router.get('/tenants/:slug/stats', authMiddleware, tenantController.getTenantStats);
+// Get tenant statistics (tenant admin only)
+router.get('/tenants/:slug/stats', authMiddleware, tenantMiddleware, membershipMiddleware, requireTenantRole('admin'), tenantController.getTenantStats);
 
 module.exports = router;

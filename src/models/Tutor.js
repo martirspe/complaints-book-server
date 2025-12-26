@@ -3,14 +3,23 @@ const { DataTypes } = require('sequelize');
 // DB Configuration
 const { sequelize } = require('../config/db');
 
-// Data Model
+// Data Models
 const DocumentType = require('./DocumentType');
+const Tenant = require('./Tenant');
 
 const Tutor = sequelize.define('Tutor', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
+  },
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: Tenant,
+      key: 'id'
+    }
   },
   document_type_id: {
     type: DataTypes.INTEGER,
@@ -52,5 +61,8 @@ const Tutor = sequelize.define('Tutor', {
 
 DocumentType.hasMany(Tutor, { foreignKey: 'document_type_id' });
 Tutor.belongsTo(DocumentType, { foreignKey: 'document_type_id' });
+
+Tenant.hasMany(Tutor, { foreignKey: 'tenant_id' });
+Tutor.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
 module.exports = Tutor;

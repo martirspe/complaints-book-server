@@ -1,18 +1,26 @@
 {
   "info": {
-    "name": "Complaints Book API",
-    "description": "Colección Postman alineada con los controladores y rutas actuales (multi-tenant, suscripciones, API keys, branding y catálogos).",
+    "name": "Complaints Book API - Multi-Tenant Secured",
+    "description": "Colección Postman completa con seguridad SaaS multi-tenant (superadmin, tenant admin, staff, API keys). Incluye: tenant CRUD segregado, customer/tutor con tenant_id scoping, aislamiento de datos, test cases de seguridad. Actualizado: Diciembre 2025.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
     { "key": "tenantSlug", "value": "default" },
-    { "key": "authToken", "value": "<jwt_token>" },
+    { "key": "tenantSlugB", "value": "tenant-b", "description": "Tenant diferente para tests de aislamiento" },
+    { "key": "authToken", "value": "<jwt_token_user>" },
     { "key": "adminToken", "value": "<admin_jwt_token>" },
+    { "key": "superadminToken", "value": "<superadmin_jwt_token>", "description": "Token con role=superadmin para gestión de plataforma" },
     { "key": "apiKey", "value": "<api_key_with_scopes>" },
     { "key": "userId", "value": "1" },
     { "key": "claimId", "value": "1" },
-    { "key": "apiKeyId", "value": "1" }
+    { "key": "apiKeyId", "value": "1" },
+    { "key": "documentTypeId", "value": "1" },
+    { "key": "currencyId", "value": "1" },
+    { "key": "consumptionTypeId", "value": "1" },
+    { "key": "claimTypeId", "value": "1" },
+    { "key": "customerId", "value": "1" },
+    { "key": "tutorId", "value": "1" }
   ],
   "item": [
     {
@@ -47,88 +55,119 @@
       "name": "Tenants & Profile",
       "item": [
         {
-          "name": "Tenant info by slug",
-          "request": {
-            "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/branding", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","branding"] }
-          }
-        },
-        {
-          "name": "Default tenant info",
-          "request": {
-            "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/tenants/default/branding", "host": ["{{baseUrl}}"], "path": ["api","tenants","default","branding"] }
-          }
-        },
-        {
-          "name": "Create Tenant",
-          "request": {
-            "method": "POST",
-            "header": [
-              {"key": "Authorization", "value": "Bearer {{adminToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"slug\": \"new-company\",\n  \"company_name\": \"Nueva Empresa\",\n  \"contact_email\": \"contact@newcompany.com\",\n  \"contact_phone\": \"+51999999999\"\n}" },
-            "url": { "raw": "{{baseUrl}}/api/tenants", "host": ["{{baseUrl}}"], "path": ["api","tenants"] }
-          }
-        },
-        {
-          "name": "List Tenants",
-          "request": {
-            "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"}],
-            "url": {
-              "raw": "{{baseUrl}}/api/tenants?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api","tenants"],
-              "query": [
-                {"key": "page", "value": "1"},
-                {"key": "limit", "value": "10"},
-                {"key": "search", "value": "", "disabled": true}
-              ]
+          "name": "🔓 PUBLIC: Tenant Branding",
+          "item": [
+            {
+              "name": "Get Tenant Info (public)",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
+              }
+            },
+            {
+              "name": "Get Tenant Logo",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/logo", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","logo"] }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Tenant Details",
-          "request": {
-            "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"}],
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/details", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","details"] }
-          }
-        },
-        {
-          "name": "Tenant Stats",
-          "request": {
-            "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"}],
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/stats", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","stats"] }
-          }
-        },
-        {
-          "name": "Update Tenant",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {"key": "Authorization", "value": "Bearer {{adminToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"company_name\": \"Empresa Actualizada\",\n  \"contact_email\": \"nuevo@email.com\",\n  \"notifications_email\": \"notificaciones@empresa.com\"\n}" },
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
-          }
-        },
-        {
-          "name": "Delete Tenant",
-          "request": {
-            "method": "DELETE",
-            "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"}],
-            "url": {
-              "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}?force=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["api","tenants","{{tenantSlug}}"],
-              "query": [ {"key": "force", "value": "true", "description": "Forzar eliminación si hay usuarios"} ]
+          "name": "🔒 SUPERADMIN ONLY: Tenant Management",
+          "item": [
+            {
+              "name": "Create Tenant (superadmin)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Authorization", "value": "Bearer {{superadminToken}}", "description": "Solo superadmin puede crear tenants"},
+                  {"key": "Content-Type", "value": "application/json"}
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"slug\": \"new-company\",\n  \"company_name\": \"Nueva Empresa S.A.\",\n  \"company_brand\": \"Nueva Marca\",\n  \"company_ruc\": \"20123456789\",\n  \"domain\": \"newcompany.com\",\n  \"contact_email\": \"contact@newcompany.com\",\n  \"contact_phone\": \"999999999\"\n}" },
+                "url": { "raw": "{{baseUrl}}/api/tenants", "host": ["{{baseUrl}}"], "path": ["api","tenants"] }
+              }
+            },
+            {
+              "name": "List All Tenants (superadmin)",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{superadminToken}}", "description": "Solo superadmin puede listar todos los tenants"}],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tenants?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api","tenants"],
+                  "query": [
+                    {"key": "page", "value": "1"},
+                    {"key": "limit", "value": "10"}
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Tenant (superadmin)",
+              "request": {
+                "method": "DELETE",
+                "header": [{"key": "Authorization", "value": "Bearer {{superadminToken}}", "description": "Solo superadmin puede eliminar tenants"}],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}?force=true",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api","tenants","{{tenantSlug}}"],
+                  "query": [ {"key": "force", "value": "true", "description": "Forzar eliminación" } ]
+                }
+              }
             }
-          }
+          ]
+        },
+        {
+          "name": "🔐 TENANT ADMIN ONLY: Self Management",
+          "item": [
+            {
+              "name": "Get Tenant Details (admin)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Authorization", "value": "Bearer {{adminToken}}"},
+                  {"key": "x-tenant", "value": "{{tenantSlug}}"}
+                ],
+                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/details", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","details"] }
+              }
+            },
+            {
+              "name": "Get Tenant Stats (admin)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Authorization", "value": "Bearer {{adminToken}}"},
+                  {"key": "x-tenant", "value": "{{tenantSlug}}"}
+                ],
+                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/stats", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","stats"] }
+              }
+            },
+            {
+              "name": "Update Tenant (admin only - own tenant)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {"key": "Authorization", "value": "Bearer {{adminToken}}"},
+                  {"key": "x-tenant", "value": "{{tenantSlug}}"}
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {"key": "company_brand", "value": "Mi Marca Actualizada", "type": "text"},
+                    {"key": "company_name", "value": "Mi Empresa Actualizada", "type": "text"},
+                    {"key": "company_ruc", "value": "20123456789", "type": "text"},
+                    {"key": "primary_color", "value": "#005BD4", "type": "text"},
+                    {"key": "accent_color", "value": "#0E948C", "type": "text"},
+                    {"key": "notifications_email", "value": "notificaciones@miempresa.com", "type": "text"},
+                    {"key": "contact_phone", "value": "987654321", "type": "text"}
+                  ]
+                },
+                "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
+              }
+            }
+          ]
         }
       ]
     },
@@ -145,7 +184,7 @@
               {"key": "Content-Type", "value": "application/json"},
               {"key": "x-tenant", "value": "{{tenantSlug}}"}
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nuevo Usuario\",\n  \"email\": \"user@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"role\": \"staff\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"first_name\": \"Nuevo\",\n  \"last_name\": \"Usuario\",\n  \"email\": \"user@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"role\": \"staff\"\n}" },
             "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/users", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","users"] }
           }
         },
@@ -170,7 +209,7 @@
           "request": {
             "method": "PUT",
             "header": [ {"key": "Authorization", "value": "Bearer {{adminToken}}"}, {"key": "Content-Type", "value": "application/json"}, {"key": "x-tenant", "value": "{{tenantSlug}}"} ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Actualizado\",\n  \"role\": \"admin\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"first_name\": \"Actualizado\",\n  \"last_name\": \"Apellido\",\n  \"role\": \"admin\"\n}" },
             "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","users","{{userId}}"] }
           }
         },
@@ -193,9 +232,9 @@
           "item": [
             { "name": "List", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/document_types", "host": ["{{baseUrl}}"], "path": ["api","document_types"] } } },
             { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"DNI\"\n}"}, "url": { "raw": "{{baseUrl}}/api/document_types", "host": ["{{baseUrl}}"], "path": ["api","document_types"] } } },
-            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/document_types/1", "host": ["{{baseUrl}}"], "path": ["api","document_types","1"] } } },
-            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"DNI actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/document_types/1", "host": ["{{baseUrl}}"], "path": ["api","document_types","1"] } } },
-            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/document_types/1", "host": ["{{baseUrl}}"], "path": ["api","document_types","1"] } } }
+            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/document_types/{{documentTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","document_types","{{documentTypeId}}"] } } },
+            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"DNI actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/document_types/{{documentTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","document_types","{{documentTypeId}}"] } } },
+            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/document_types/{{documentTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","document_types","{{documentTypeId}}"] } } }
           ]
         },
         {
@@ -203,75 +242,287 @@
           "item": [
             { "name": "List", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/consumption_types", "host": ["{{baseUrl}}"], "path": ["api","consumption_types"] } } },
             { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Producto\"\n}"}, "url": { "raw": "{{baseUrl}}/api/consumption_types", "host": ["{{baseUrl}}"], "path": ["api","consumption_types"] } } },
-            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/consumption_types/1", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","1"] } } },
-            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Servicio actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/consumption_types/1", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","1"] } } },
-            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/consumption_types/1", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","1"] } } }
+            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/consumption_types/{{consumptionTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","{{consumptionTypeId}}"] } } },
+            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Servicio actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/consumption_types/{{consumptionTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","{{consumptionTypeId}}"] } } },
+            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/consumption_types/{{consumptionTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","consumption_types","{{consumptionTypeId}}"] } } }
           ]
         },
         {
           "name": "Claim Types",
           "item": [
             { "name": "List", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/claim_types", "host": ["{{baseUrl}}"], "path": ["api","claim_types"] } } },
-            { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Reclamo\"\n}"}, "url": { "raw": "{{baseUrl}}/api/claim_types", "host": ["{{baseUrl}}"], "path": ["api","claim_types"] } } },
-            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/claim_types/1", "host": ["{{baseUrl}}"], "path": ["api","claim_types","1"] } } },
-            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Queja actualizada\"\n}"}, "url": { "raw": "{{baseUrl}}/api/claim_types/1", "host": ["{{baseUrl}}"], "path": ["api","claim_types","1"] } } },
-            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/claim_types/1", "host": ["{{baseUrl}}"], "path": ["api","claim_types","1"] } } }
+            { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Reclamo\",\n  \"description\": \"Motivo de reclamo\"\n}"}, "url": { "raw": "{{baseUrl}}/api/claim_types", "host": ["{{baseUrl}}"], "path": ["api","claim_types"] } } },
+            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/claim_types/{{claimTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","claim_types","{{claimTypeId}}"] } } },
+            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Queja actualizada\",\n  \"description\": \"Descripción actualizada\"\n}"}, "url": { "raw": "{{baseUrl}}/api/claim_types/{{claimTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","claim_types","{{claimTypeId}}"] } } },
+            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/claim_types/{{claimTypeId}}", "host": ["{{baseUrl}}"], "path": ["api","claim_types","{{claimTypeId}}"] } } }
           ]
         },
         {
           "name": "Currencies",
           "item": [
             { "name": "List", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/currencies", "host": ["{{baseUrl}}"], "path": ["api","currencies"] } } },
-            { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"code\": \"USD\",\n  \"name\": \"Dólar\"\n}"}, "url": { "raw": "{{baseUrl}}/api/currencies", "host": ["{{baseUrl}}"], "path": ["api","currencies"] } } },
-            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/currencies/1", "host": ["{{baseUrl}}"], "path": ["api","currencies","1"] } } },
-            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Dólar USA\"\n}"}, "url": { "raw": "{{baseUrl}}/api/currencies/1", "host": ["{{baseUrl}}"], "path": ["api","currencies","1"] } } },
-            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/currencies/1", "host": ["{{baseUrl}}"], "path": ["api","currencies","1"] } } }
+            { "name": "Create", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"code\": \"PEN\",\n  \"name\": \"Sol Peruano\",\n  \"symbol\": \"S/\"\n}"}, "url": { "raw": "{{baseUrl}}/api/currencies", "host": ["{{baseUrl}}"], "path": ["api","currencies"] } } },
+            { "name": "Get", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/currencies/{{currencyId}}", "host": ["{{baseUrl}}"], "path": ["api","currencies","{{currencyId}}"] } } },
+            { "name": "Update", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Sol Peruano\",\n  \"symbol\": \"S/\",\n  \"is_active\": true\n}"}, "url": { "raw": "{{baseUrl}}/api/currencies/{{currencyId}}", "host": ["{{baseUrl}}"], "path": ["api","currencies","{{currencyId}}"] } } },
+            { "name": "Delete", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/currencies/{{currencyId}}", "host": ["{{baseUrl}}"], "path": ["api","currencies","{{currencyId}}"] } } }
           ]
         }
       ]
     },
 
     {
-      "name": "Customers",
+      "name": "Customers (Tenant Scoped)",
       "item": [
-        { "name": "Create Customer", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Cliente\",\n  \"document_number\": \"12345678\"\n}"}, "url": { "raw": "{{baseUrl}}/api/customers", "host": ["{{baseUrl}}"], "path": ["api","customers"] } } },
-        { "name": "List Customers", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/customers", "host": ["{{baseUrl}}"], "path": ["api","customers"] } } },
-        { "name": "Get Customer by Document", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/customers/document/12345678", "host": ["{{baseUrl}}"], "path": ["api","customers","document","12345678"] } } },
-        { "name": "Get Customer", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/customers/1", "host": ["{{baseUrl}}"], "path": ["api","customers","1"] } } },
-        { "name": "Update Customer", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Cliente actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/customers/1", "host": ["{{baseUrl}}"], "path": ["api","customers","1"] } } },
-        { "name": "Delete Customer", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/customers/1", "host": ["{{baseUrl}}"], "path": ["api","customers","1"] } } }
+        { 
+          "name": "Create Customer (tenant-scoped)", 
+          "request": { 
+            "method": "POST", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"document_type_id\": {{documentTypeId}},\n  \"document_number\": \"12345678\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"email\": \"juan.perez@example.com\",\n  \"phone\": \"999999999\",\n  \"address\": \"Av. Siempre Viva 742, Springfield, Lima, Peru\",\n  \"is_younger\": false\n}"}, 
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers"] } 
+          } 
+        },
+        { 
+          "name": "List Customers (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers"] } 
+          } 
+        },
+        { 
+          "name": "Get Customer by Document (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/document/12345678", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","document","12345678"] } 
+          } 
+        },
+        { 
+          "name": "Get Customer (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","{{customerId}}"] } 
+          } 
+        },
+        { 
+          "name": "Update Customer (tenant-scoped)", 
+          "request": { 
+            "method": "PUT", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"juan.actualizado@example.com\",\n  \"phone\": \"988888888\",\n  \"address\": \"Calle Falsa 123, Distrito, Ciudad\"\n}"}, 
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","{{customerId}}"] } 
+          } 
+        },
+        { 
+          "name": "Delete Customer (tenant-scoped)", 
+          "request": { 
+            "method": "DELETE", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","{{customerId}}"] } 
+          } 
+        }
       ]
     },
 
     {
-      "name": "Tutors",
+      "name": "Tutors (Tenant Scoped)",
       "item": [
-        { "name": "Create Tutor", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Apoderado\",\n  \"document_number\": \"87654321\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tutors", "host": ["{{baseUrl}}"], "path": ["api","tutors"] } } },
-        { "name": "List Tutors", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tutors", "host": ["{{baseUrl}}"], "path": ["api","tutors"] } } },
-        { "name": "Get Tutor by Document", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tutors/document/87654321", "host": ["{{baseUrl}}"], "path": ["api","tutors","document","87654321"] } } },
-        { "name": "Get Tutor", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tutors/1", "host": ["{{baseUrl}}"], "path": ["api","tutors","1"] } } },
-        { "name": "Update Tutor", "request": { "method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Apoderado actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tutors/1", "host": ["{{baseUrl}}"], "path": ["api","tutors","1"] } } },
-        { "name": "Delete Tutor", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/tutors/1", "host": ["{{baseUrl}}"], "path": ["api","tutors","1"] } } }
+        { 
+          "name": "Create Tutor (tenant-scoped)", 
+          "request": { 
+            "method": "POST", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"document_type_id\": {{documentTypeId}},\n  \"document_number\": \"87654321\",\n  \"first_name\": \"Ana\",\n  \"last_name\": \"García\",\n  \"email\": \"ana.garcia@example.com\",\n  \"phone\": \"988888888\"\n}"}, 
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors"] } 
+          } 
+        },
+        { 
+          "name": "List Tutors (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors"] } 
+          } 
+        },
+        { 
+          "name": "Get Tutor by Document (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors/document/87654321", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors","document","87654321"] } 
+          } 
+        },
+        { 
+          "name": "Get Tutor (tenant-scoped)", 
+          "request": { 
+            "method": "GET", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors/{{tutorId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors","{{tutorId}}"] } 
+          } 
+        },
+        { 
+          "name": "Update Tutor (tenant-scoped)", 
+          "request": { 
+            "method": "PUT", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"phone\": \"977777777\",\n  \"email\": \"ana.updated@example.com\"\n}"}, 
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors/{{tutorId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors","{{tutorId}}"] } 
+          } 
+        },
+        { 
+          "name": "Delete Tutor (tenant-scoped)", 
+          "request": { 
+            "method": "DELETE", 
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors/{{tutorId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors","{{tutorId}}"] } 
+          } 
+        }
       ]
     },
 
     {
-      "name": "Claims (JWT / API key)",
+      "name": "Claims (JWT)",
       "item": [
         { "name": "List Claims", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims"] } } },
-        { "name": "Create Claim (JWT)", "request": { "method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"customer_id\": 1,\n  \"consumption_type_id\": 1,\n  \"claim_type_id\": 1,\n  \"description\": \"Reclamo de prueba\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims"] } } },
+        {
+          "name": "Create Claim (JWT + archivo opcional)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"}, {"key": "x-tenant", "value": "{{tenantSlug}}"}],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "customer_id", "value": "{{customerId}}", "type": "text"},
+                {"key": "tutor_id", "value": "", "type": "text", "disabled": true},
+                {"key": "consumption_type_id", "value": "{{consumptionTypeId}}", "type": "text"},
+                {"key": "claim_type_id", "value": "{{claimTypeId}}", "type": "text"},
+                {"key": "currency_id", "value": "{{currencyId}}", "type": "text"},
+                {"key": "order_number", "value": "12345", "type": "text"},
+                {"key": "claimed_amount", "value": "100.50", "type": "text"},
+                {"key": "description", "value": "Descripción del reclamo con al menos 100 caracteres. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod.", "type": "text"},
+                {"key": "detail", "value": "Detalle del reclamo con al menos 50 caracteres. Ejemplo de contenido detallado.", "type": "text"},
+                {"key": "request", "value": "Solicitud del cliente con al menos 100 caracteres. Ejemplo: devolución del monto pagado y entrega de comprobante.", "type": "text"},
+                {"key": "attachment", "type": "file", "src": ""}
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims"] }
+          }
+        },
         { "name": "Get Claim", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}"] } } },
-        { "name": "Update Claim", "request": { "method": "PUT", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"description\": \"Actualizado\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}"] } } },
+        {
+          "name": "Update Claim (datos + archivo opcional)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "claimed_amount", "value": "150.75", "type": "text"},
+                {"key": "description", "value": "Descripción actualizada con al menos 100 caracteres. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod.", "type": "text"},
+                {"key": "detail", "value": "Detalle actualizado con al menos 50 caracteres.", "type": "text"},
+                {"key": "request", "value": "Solicitud actualizada con al menos 100 caracteres.", "type": "text"},
+                {"key": "attachment", "type": "file", "src": ""}
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}"] }
+          }
+        },
         { "name": "Delete Claim", "request": { "method": "DELETE", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}"] } } },
-        { "name": "Assign Claim", "request": { "method": "PATCH", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"assignee_id\": 1\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}/assign", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}","assign"] } } },
-        { "name": "Resolve Claim", "request": { "method": "PATCH", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"resolution_notes\": \"Resuelto\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}/resolve", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}","resolve"] } } }
+        {
+          "name": "Assign Claim",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"assigned_user\": {{userId}}\n}"},
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}/assign", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}","assign"] }
+          }
+        },
+        {
+          "name": "Resolve Claim (con adjunto opcional)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "response", "value": "Respuesta al cliente sobre el resultado del reclamo.", "type": "text"},
+                {"key": "resolved", "value": "true", "type": "text"},
+                {"key": "response_attachment", "type": "file", "src": ""}
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims/{{claimId}}/resolve", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims","{{claimId}}","resolve"] }
+          }
+        }
       ]
     },
 
     {
       "name": "Integrations (API key)",
       "item": [
-        { "name": "Create Claim (API key)", "request": { "method": "POST", "header": [{"key": "x-api-key", "value": "{{apiKey}}"},{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"customer_id\": 1,\n  \"consumption_type_id\": 1,\n  \"claim_type_id\": 1,\n  \"description\": \"Reclamo desde integración\"\n}"}, "url": { "raw": "{{baseUrl}}/api/integrations/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","integrations","{{tenantSlug}}","claims"] } } },
+        {
+          "name": "Create Claim (API key + archivo opcional)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "x-api-key", "value": "{{apiKey}}"}],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "customer_id", "value": "{{customerId}}", "type": "text"},
+                {"key": "consumption_type_id", "value": "{{consumptionTypeId}}", "type": "text"},
+                {"key": "claim_type_id", "value": "{{claimTypeId}}", "type": "text"},
+                {"key": "currency_id", "value": "{{currencyId}}", "type": "text"},
+                {"key": "claimed_amount", "value": "99.99", "type": "text"},
+                {"key": "description", "value": "Descripción (>=100 chars) para integración.", "type": "text"},
+                {"key": "detail", "value": "Detalle (>=50 chars) para integración.", "type": "text"},
+                {"key": "request", "value": "Solicitud (>=100 chars) para integración.", "type": "text"},
+                {"key": "attachment", "type": "file", "src": ""}
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/integrations/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","integrations","{{tenantSlug}}","claims"] }
+          }
+        },
         { "name": "List Claims (API key)", "request": { "method": "GET", "header": [{"key": "x-api-key", "value": "{{apiKey}}"}], "url": { "raw": "{{baseUrl}}/api/integrations/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","integrations","{{tenantSlug}}","claims"] } } },
         { "name": "Get Claim (API key)", "request": { "method": "GET", "header": [{"key": "x-api-key", "value": "{{apiKey}}"}], "url": { "raw": "{{baseUrl}}/api/integrations/{{tenantSlug}}/claims/{{claimId}}", "host": ["{{baseUrl}}"], "path": ["api","integrations","{{tenantSlug}}","claims","{{claimId}}"] } } }
       ]
@@ -292,42 +543,103 @@
     },
 
     {
-      "name": "Subscriptions & Billing",
-      "item": [
-        { "name": "List Plans", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/plans", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","plans"] } } },
-        { "name": "Get Subscription", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/subscription", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","subscription"] } } },
-        { "name": "Get Usage", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/usage", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","usage"] } } },
-        { "name": "Upgrade Plan (admin)", "request": { "method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"plan_name\": \"pro\",\n  \"billing_cycle_start\": \"2025-12-20\",\n  \"billing_cycle_end\": \"2026-12-20\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/upgrade", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","upgrade"] } } },
-        { "name": "Cancel Subscription (admin)", "request": { "method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"reason\": \"No longer needed\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/cancel", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","cancel"] } } }
-      ]
-    },
-
-    {
-      "name": "Tenant Branding (admin)",
+      "name": "🔐 Security Tests (Multi-Tenant Isolation)",
       "item": [
         {
-          "name": "Update Branding",
+          "name": "❌ TEST: Cross-Tenant Customer Access (should fail)",
           "request": {
-            "method": "PUT",
+            "method": "GET",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{adminToken}}"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}", "description": "Usando tenant A"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/999", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","999"] },
+            "tests": "pm.test('Cross-tenant access denied', function() {\n  pm.expect(pm.response.code).to.be.oneOf([403, 404]);\n});"
+          }
+        },
+        {
+          "name": "❌ TEST: Cross-Tenant Tutor Access (should fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/tutors/999", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","tutors","999"] },
+            "tests": "pm.test('Cross-tenant tutor access denied', function() {\n  pm.expect(pm.response.code).to.be.oneOf([403, 404]);\n});"
+          }
+        },
+        {
+          "name": "❌ TEST: Create Claim with Wrong Tenant Customer (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
               {"key": "x-tenant", "value": "{{tenantSlug}}"}
             ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                {"key": "company_brand", "value": "Mi Marca", "type": "text"},
-                {"key": "company_name", "value": "Mi Empresa", "type": "text"},
-                {"key": "primary_color", "value": "#005BD4", "type": "text"},
-                {"key": "accent_color", "value": "#0E948C", "type": "text"},
-                {"key": "logo_light", "type": "file", "src": ""},
-                {"key": "logo_dark", "type": "file", "src": ""},
-                {"key": "favicon", "type": "file", "src": ""}
+                {"key": "customer_id", "value": "999", "type": "text", "description": "Customer ID de otro tenant"},
+                {"key": "consumption_type_id", "value": "{{consumptionTypeId}}", "type": "text"},
+                {"key": "claim_type_id", "value": "{{claimTypeId}}", "type": "text"},
+                {"key": "currency_id", "value": "{{currencyId}}", "type": "text"},
+                {"key": "claimed_amount", "value": "100.00", "type": "text"},
+                {"key": "description", "value": "Test de error: customer de otro tenant (100+ chars aqui)", "type": "text"},
+                {"key": "detail", "value": "Detail text (50+ chars)", "type": "text"},
+                {"key": "request", "value": "Request text (100+ chars needed para validar)", "type": "text"}
               ]
             },
-            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] }
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/claims", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","claims"] },
+            "tests": "pm.test('Customer from another tenant rejected', function() {\n  pm.expect(pm.response.code).to.be.oneOf([404]);\n  pm.expect(pm.response.text()).to.include('no encontrado');\n});"
+          }
+        },
+        {
+          "name": "❌ TEST: Superadmin Access Only - Non-Superadmin Creates Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}", "description": "Admin token (NO superadmin)"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"slug\": \"unauthorized-tenant\",\n  \"company_name\": \"Intento no autorizado\"\n}"},
+            "url": { "raw": "{{baseUrl}}/api/tenants", "host": ["{{baseUrl}}"], "path": ["api","tenants"] },
+            "tests": "pm.test('Non-superadmin cannot create tenant', function() {\n  pm.expect(pm.response.code).to.be.oneOf([403, 401]);\n});"
+          }
+        },
+        {
+          "name": "❌ TEST: Superadmin Delete Only - Admin Cannot Delete Tenant",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}", "description": "Admin token (NO superadmin)"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}"] },
+            "tests": "pm.test('Non-superadmin cannot delete tenant', function() {\n  pm.expect(pm.response.code).to.be.oneOf([403, 401]);\n});"
+          }
+        },
+        {
+          "name": "✅ TEST: Customer Has Correct Tenant_ID (verification)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}"},
+              {"key": "x-tenant", "value": "{{tenantSlug}}"}
+            ],
+            "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/customers/1", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","customers","1"] },
+            "tests": "pm.test('Customer response received', function() {\n  pm.expect(pm.response.code).to.be.oneOf([200]);\n  var data = pm.response.json();\n  pm.test('Response contains data', function() {\n    pm.expect(data).to.have.property('id');\n  });\n});"
           }
         }
+      ]
+    },
+    {
+      "name": "Billing (admin)",
+      "item": [
+        { "name": "List Plans", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/plans", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","plans"] } } },
+        { "name": "Get Subscription", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/subscription", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","subscription"] } } },
+        { "name": "Get Usage", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{authToken}}"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/usage", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","usage"] } } },
+        { "name": "Upgrade Plan (admin)", "request": { "method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"plan_name\": \"pro\",\n  \"billing_cycle_start\": \"2025-12-20\",\n  \"billing_cycle_end\": \"2026-12-20\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/upgrade", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","upgrade"] } } },
+        { "name": "Cancel Subscription (admin)", "request": { "method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{adminToken}}"},{"key": "Content-Type", "value": "application/json"},{"key": "x-tenant", "value": "{{tenantSlug}}"}], "body": {"mode": "raw", "raw": "{\n  \"reason\": \"No longer needed\"\n}"}, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/billing/cancel", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantSlug}}","billing","cancel"] } } }
       ]
     }
   ]

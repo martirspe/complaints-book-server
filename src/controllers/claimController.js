@@ -13,18 +13,28 @@ exports.createClaim = async (req, res) => {
     const { customer_id, tutor_id, claim_type_id, consumption_type_id, currency_id, ...claimData } = req.body;
     const tenantId = req.tenant?.id;
 
-    // Find all related records at once
+    if (!tenantId) {
+      return res.status(400).json({ message: 'Tenant context requerido' });
+    }
+
+    // Find all related records at once (customer and tutor must belong to the same tenant)
     const [customer, tutor, consumptionType, claimType, currency] = await Promise.all([
-      Customer.findByPk(customer_id),
-      tutor_id ? Tutor.findByPk(tutor_id) : null,
+      Customer.findOne({ where: { id: customer_id, tenant_id: tenantId } }),
+      tutor_id ? Tutor.findOne({ where: { id: tutor_id, tenant_id: tenantId } }) : null,
       ConsumptionType.findByPk(consumption_type_id),
       ClaimType.findByPk(claim_type_id),
       Currency.findByPk(currency_id)
     ]);
 
-    // Check if all necessary records exist
-    if (!customer || !consumptionType || !claimType || !currency || (tutor_id && !tutor)) {
-      return res.status(404).json({ message: 'Uno o más registros no fueron encontrados' });
+    // Check if all necessary records exist and belong to the tenant
+    if (!customer) {
+      return res.status(404).json({ message: 'Cliente no encontrado en este tenant' });
+    }
+    if (tutor_id && !tutor) {
+      return res.status(404).json({ message: 'Tutor no encontrado en este tenant' });
+    }
+    if (!consumptionType || !claimType || !currency) {
+      return res.status(404).json({ message: 'Uno o más registros de catálogo no fueron encontrados' });
     }
 
     // Handle attachment

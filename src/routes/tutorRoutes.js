@@ -12,23 +12,27 @@ const {
 
 const router = express.Router();
 const { validateTutorCreate, validateTutorUpdate } = require('../middlewares/validationMiddleware');
+const { apiKeyOrJwt } = require('../middlewares');
+
+// All tutor routes require authentication and tenant context
+// Public-facing (can be accessed via API key or JWT)
 
 // Create a new tutor
-router.post('/tutors', validateTutorCreate, createTutor);
+router.post('/tutors', apiKeyOrJwt, validateTutorCreate, createTutor);
 
-// Get all tutors
-router.get('/tutors', getTutors);
+// Get all tutors (scoped to tenant)
+router.get('/tutors', apiKeyOrJwt, getTutors);
 
-// Get a tutor by document number
-router.get('/tutors/document/:document_number', getTutorByDocument);
+// Get a tutor by document number (scoped to tenant)
+router.get('/tutors/document/:document_number', apiKeyOrJwt, getTutorByDocument);
 
-// Get a tutor by ID
-router.get('/tutors/:id', getTutorById);
+// Get a tutor by ID (scoped to tenant)
+router.get('/tutors/:id', apiKeyOrJwt, getTutorById);
 
 // Update a tutor
-router.put('/tutors/:id', validateTutorUpdate, updateTutor);
+router.put('/tutors/:id', apiKeyOrJwt, validateTutorUpdate, updateTutor);
 
 // Delete a tutor
-router.delete('/tutors/:id', deleteTutor);
+router.delete('/tutors/:id', apiKeyOrJwt, deleteTutor);
 
 module.exports = router;

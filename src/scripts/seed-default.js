@@ -1,4 +1,4 @@
-/* Default init seed: only baseline catalogs + default tenant + admin user. */
+/* Production baseline seed: catalogs, default tenant, admin user, subscription. Optional superadmin via env flag. */
 const { connectDB } = require('../config/db');
 const { DocumentType, ConsumptionType, ClaimType, Currency, User, Tenant, UserTenant, Subscription } = require('../models');
 const defaultTenant = require('../config/defaultTenant');
@@ -89,6 +89,31 @@ async function seedAdminUser(tenant) {
   }
 }
 
+async function seedSuperadminUserConditional() {
+  const shouldCreate = (process.env.CREATE_SUPERADMIN_ON_SEED || 'false').toLowerCase() === 'true';
+  if (!shouldCreate) {
+    console.log('Skipping superadmin creation (set CREATE_SUPERADMIN_ON_SEED=true to enable).');
+    return;
+  }
+
+  const email = process.env.SUPERADMIN_EMAIL || 'superadmin@example.com';
+  const password = process.env.SUPERADMIN_PASSWORD || 'superadmin123';
+  let user = await User.findOne({ where: { email } });
+  if (!user) {
+    const hashed = await bcrypt.hash(password, 10);
+    user = await User.create({
+      first_name: 'Superadmin',
+      last_name: 'User',
+      email,
+      password: hashed,
+      role: 'superadmin',
+    });
+    console.log(`Seeded: superadmin user (${email})`);
+  } else {
+    console.log(`Superadmin user (${email}) already exists, skipping.`);
+  }
+}
+
 async function seedSubscription(tenant) {
   if (!tenant) return;
   const existing = await Subscription.findOne({ where: { tenant_id: tenant.id } });
@@ -115,6 +140,7 @@ async function seedSubscription(tenant) {
     await seedClaimTypes();
     await seedCurrencies();
     const tenant = await seedDefaultTenant();
+    await seedSuperadminUserConditional();
     await seedAdminUser(tenant);
     await seedSubscription(tenant);
     console.log('Default seeding completed.');

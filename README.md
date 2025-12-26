@@ -37,6 +37,12 @@ API REST para gestión de Libro de Reclamaciones con arquitectura SaaS multi-ten
 - **Rate limiting** por tenant usando Redis
 - **CORS configurable** con whitelist de dominios
 
+### Notas rápidas (operación SaaS)
+- **Rate limit por plan**: Free 30/min, Basic 60/min, Pro 200/min, Enterprise 1000/min.
+- **Feature gating**: middleware `requireFeature` habilita/deniega según plan.
+- **Auditoría**: cambios sensibles se registran automáticamente.
+- **Billing clave**: `GET /api/tenants/:slug/billing/subscription`, `GET /api/tenants/:slug/billing/usage`, `POST /api/tenants/:slug/billing/upgrade|cancel`.
+
 ### Integraciones
 - **Endpoints de integración** para crear/consultar reclamos vía API key
 - **Sistema de emails** con templates personalizables (HTML)
@@ -136,8 +142,6 @@ EMAIL_PASSWORD=your-app-password
 - `DEFAULT_TENANT_LOGO_LIGHT_PATH`, `DEFAULT_TENANT_LOGO_DARK_PATH`, `DEFAULT_TENANT_FAVICON_PATH`
 - `DEFAULT_TENANT_NOTIFICATIONS_EMAIL`
 
-Si no defines estos, se usan los valores de [src/config/defaultTenant.js](src/config/defaultTenant.js).
-
 ---
 
 ## 🌱 Inicialización de datos
@@ -179,8 +183,6 @@ ADMIN_EMAIL=admin@miempresa.com ADMIN_PASSWORD=mipassword npm run seed
 ## 🔐 Autenticación y Seguridad
 
 ### Documentación de Seguridad
-
-📖 **[Arquitectura de Seguridad Multi-Tenant](./SECURITY_ARCHITECTURE.md)** - Guía completa de implementación de seguridad
 
 Esta aplicación implementa un **sistema de seguridad multi-tenant completo** con:
 - ✅ Aislamiento de datos por tenant (row-level security)
@@ -417,7 +419,6 @@ FORCE_HTTPS=true
 El sistema envía BCC a `notifications_email` del tenant. Fallback:
 1. `notifications_email` del tenant
 2. `DEFAULT_TENANT_NOTIFICATIONS_EMAIL` (env)
-3. `defaultTenant.notificationsEmail` (config)
 
 ---
 
@@ -448,26 +449,9 @@ Todas las operaciones sensibles se registran con:
 
 ---
 
-## 📚 Documentación adicional
+## 📚 Recursos disponibles
 
-### Seguridad y Arquitectura
-- **[SECURITY_ARCHITECTURE.md](SECURITY_ARCHITECTURE.md)** — Arquitectura de seguridad multi-tenant completa
-- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** — Guía de migración para tenant_id en customers/tutors
-
-### Guías técnicas
-- **[SUBSCRIPTIONS.md](SUBSCRIPTIONS.md)** — Sistema de suscripciones SaaS completo
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** — Referencia rápida de endpoints y features
-- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Índice completo y flujos por rol
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** — Guía de testing con ejemplos
-
-### Reportes de consolidación
-- **[COMPLETION_REPORT.md](COMPLETION_REPORT.md)** — Consolidación y beneficios del sistema
-- **[VERIFICATION_REPORT.md](VERIFICATION_REPORT.md)** — Checklist, métricas y seguridad
-- **[MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md)** — Resumen de migraciones realizadas
-- **[CONSOLIDATION_SUMMARY.md](CONSOLIDATION_SUMMARY.md)** — Consolidación de licencias a suscripciones
-
-### Colección Postman
-- **[postman_collection.json](postman_collection.json)** — Colección completa con todos los endpoints
+- **Colección Postman**: [postman_collection.json](postman_collection.json)
 
 ---
 
@@ -484,7 +468,14 @@ npm run seed:default  # Seed mínimo (sin API key)
 
 ## 📞 Soporte y contribución
 
-Para dudas técnicas, issues o contribuciones:
-- Revisa la documentación en este directorio
-- Consulta [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) para encontrar la guía específica
+Para dudas técnicas o issues:
+- Revisa este README
 - Abre un issue en el repositorio con detalles del problema
+
+Contribución limitada a colaboradores internos.
+
+---
+
+## 📜 Licencia
+
+Proyecto privado. Todos los derechos reservados.

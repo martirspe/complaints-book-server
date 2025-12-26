@@ -1,21 +1,30 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const { Tenant } = require('../models');
 
-// Default tenant/branding fallback values
-const defaultTenant = require('../config/defaultTenant');
+// In-memory cache for default tenant record
+let defaultTenantCache = null;
+const getDefaultTenant = async () => {
+    if (defaultTenantCache) return defaultTenantCache;
+    const slug = process.env.DEFAULT_TENANT_SLUG || 'default';
+    defaultTenantCache = await Tenant.findOne({ where: { slug } });
+    return defaultTenantCache;
+};
 
-// Helper to resolve branding per tenant with fallback to global config
-const resolveBranding = (tenant) => {
-    const companyName = tenant?.company_name || defaultTenant.companyName || 'ReclamoFácil';
-    const companyBrand = tenant?.company_brand || tenant?.company_name || defaultTenant.companyBrand || companyName;
-    const logoLightPath = tenant?.logo_light_url || defaultTenant.logoLightPath || 'assets/default-tenant/logo-light.png';
-    const logoDarkPath = tenant?.logo_dark_url || defaultTenant.logoDarkPath || 'assets/default-tenant/logo-dark.png';
-    return { companyName, companyBrand, logoLightPath, logoDarkPath };
+// Helper to resolve branding per tenant with fallback to DB default tenant
+const resolveBranding = async (tenant) => {
+    const fallback = tenant || await getDefaultTenant();
+    const companyName = fallback?.company_name || 'ReclamoFácil';
+    const companyBrand = fallback?.company_brand || fallback?.company_name || companyName;
+    const logoLightPath = fallback?.logo_light_url || 'assets/default-tenant/logo-light.png';
+    const logoDarkPath = fallback?.logo_dark_url || 'assets/default-tenant/logo-dark.png';
+    const notificationsEmail = fallback?.notifications_email || process.env.DEFAULT_TENANT_NOTIFICATIONS_EMAIL;
+    return { companyName, companyBrand, logoLightPath, logoDarkPath, notificationsEmail };
 };
 
 // Use light logo path for emails by default (resolved per-tenant later)
-const DEFAULT_EMAIL_LOGO_PATH = defaultTenant.logoLightPath || 'assets/default-tenant/logo-light.png';
+const DEFAULT_EMAIL_LOGO_PATH = 'assets/default-tenant/logo-light.png';
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
 const EMAIL_SECURE = process.env.EMAIL_SECURE;
@@ -39,7 +48,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, text, templateName, replacements, attachments = [], options = {}) => {
     try {
         const tenant = options.tenant;
-        const brand = resolveBranding(tenant);
+        const brand = await resolveBranding(tenant);
 
         const templatePath = path.join(__dirname, 'templates', `${templateName}.html`);
         const html = await fs.promises.readFile(templatePath, 'utf8');
@@ -70,7 +79,7 @@ const sendEmail = async (to, subject, text, templateName, replacements, attachme
         }
 
         // Resolve per-tenant support/notification email (BCC)
-        const supportEmail = tenant?.notifications_email || DEFAULT_NOTIFICATIONS_EMAIL || defaultTenant.notificationsEmail;
+        const supportEmail = brand.notificationsEmail || DEFAULT_NOTIFICATIONS_EMAIL;
 
         // Definition of email
         const mailOptions = {

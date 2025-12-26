@@ -1,7 +1,6 @@
 /* Production baseline seed: catalogs, default tenant, admin user, subscription. Optional superadmin via env flag. */
 const { connectDB } = require('../config/db');
 const { DocumentType, ConsumptionType, ClaimType, Currency, User, Tenant, UserTenant, Subscription } = require('../models');
-const defaultTenant = require('../config/defaultTenant');
 const bcrypt = require('bcrypt');
 
 async function seedDocumentTypes() {
@@ -51,17 +50,27 @@ async function seedDefaultTenant() {
   const defaultSlug = process.env.DEFAULT_TENANT_SLUG || 'default';
   let tenant = await Tenant.findOne({ where: { slug: defaultSlug } });
   if (!tenant) {
+    const companyBrand = process.env.DEFAULT_TENANT_COMPANY_BRAND || 'ReclamoFácil';
+    const companyName = process.env.DEFAULT_TENANT_COMPANY_NAME || 'ReclamoFácil S.A.C.';
+    const companyRuc = process.env.DEFAULT_TENANT_COMPANY_RUC || '20605432109';
+    const primaryColor = process.env.DEFAULT_TENANT_PRIMARY_COLOR || '#2563EB';
+    const accentColor = process.env.DEFAULT_TENANT_ACCENT_COLOR || '#16A34A';
+    const logoLightPath = process.env.DEFAULT_TENANT_LOGO_LIGHT_PATH || 'assets/default-tenant/logo-light.png';
+    const logoDarkPath = process.env.DEFAULT_TENANT_LOGO_DARK_PATH || 'assets/default-tenant/logo-dark.png';
+    const faviconPath = process.env.DEFAULT_TENANT_FAVICON_PATH || 'assets/default-tenant/favicon.png';
+    const notificationsEmail = process.env.DEFAULT_TENANT_NOTIFICATIONS_EMAIL || 'soporte@reclamofacil.com';
+
     tenant = await Tenant.create({
       slug: defaultSlug,
-      company_brand: defaultTenant.companyBrand,
-      company_name: defaultTenant.companyName,
-      company_ruc: defaultTenant.companyRuc,
-      primary_color: defaultTenant.primaryColor,
-      accent_color: defaultTenant.accentColor,
-      logo_light_url: defaultTenant.logoLightPath,
-      logo_dark_url: defaultTenant.logoDarkPath,
-      favicon_url: defaultTenant.faviconPath,
-      notifications_email: process.env.DEFAULT_TENANT_NOTIFICATIONS_EMAIL || defaultTenant.notificationsEmail,
+      company_brand: companyBrand,
+      company_name: companyName,
+      company_ruc: companyRuc,
+      primary_color: primaryColor,
+      accent_color: accentColor,
+      logo_light_url: logoLightPath,
+      logo_dark_url: logoDarkPath,
+      favicon_url: faviconPath,
+      notifications_email: notificationsEmail,
     });
     console.log(`Seeded: tenant (${defaultSlug})`);
   }
